@@ -1,3 +1,914 @@
-<html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 정보 활용 편향 진단</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xapi-wrapper@2.2.1/dist/xapiwrapper.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .quiz-option {
+            transition: all 0.2s ease-in-out;
+        }
+        .selected-answer {
+             border-color: #F97316 !important; /* Tailwind orange-500 */
+             box-shadow: 0 0 0 2px #F97316;
+        }
+        .rationale {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            opacity: 0;
+        }
+        .rationale.show {
+            max-height: 200px;
+            opacity: 1;
+        }
+        .likert-option {
+            transition: all 0.2s ease-in-out;
+        }
+        .likert-option.selected {
+            background-color: #16A34A; /* Tailwind green-600 */
+            color: white;
+            transform: scale(1.1);
+        }
+        /* [추가] 사전 설문 선택지 스타일 */
+        .pre-survey-option {
+             transition: all 0.2s ease-in-out;
+        }
+        .pre-survey-option.selected {
+            background-color: #0284C7; /* Tailwind sky-600 */
+            color: white;
+            border-color: #0369A1;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
 
+    <!-- 시작 화면 -->
+    <div id="start-container" class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 text-center">
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-800">AI 정보 활용 편향 진단</h1>
+        <div class="text-slate-600 mt-4 mb-8 text-lg leading-relaxed text-left border-t border-b py-6">
+            <p class="mb-4">"할루시네이션"이란 환각이라는 뜻으로 AI가 사실이 아닌 정보를 사실처럼 생성하는 현상을 말합니다.</p>
+            <p class="mb-4">이 진단은 대표적인 할루시네이션 유형 8가지를 제시하고, 이에 대한 잘못된 대응을 선택지로 드립니다.<br>선택지 중에 자신이 가장 할 것 같은 행동을 골라주세요.</p>
+            <p>이 진단을 통해 당신의 인지 편향과 할루시네이션에 대한 취약점을 점검할 수 있습니다.</p>
+        </div>
+        
+        <div id="pre-survey-container" class="my-8 text-center border rounded-lg p-6 bg-slate-50 space-y-6">
+            <div id="pre-survey-frequency">
+                 <h4 class="text-lg font-bold text-slate-800 mb-2">1. AI 사용 빈도</h4>
+                 <p class="text-slate-600 mb-4 text-sm">평소 생성형 AI를 얼마나 자주 사용하시나요?</p>
+                 <div id="frequency-options" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                     <!-- Frequency options will be generated here -->
+                 </div>
+            </div>
+            <div id="pre-survey-competency">
+                <h4 class="text-lg font-bold text-slate-800 mb-2">2. 사전 역량 평가</h4>
+                <p class="text-slate-600 mb-4 text-sm">현재 자신의 AI 할루시네이션 대응 역량은 어느 정도라고 생각하시나요?</p>
+                <div class="flex justify-between items-center max-w-sm mx-auto px-2">
+                    <span class="text-xs text-slate-500">매우<br>낮음</span>
+                    <div id="pre-survey-likert-scale" class="flex justify-center items-center space-x-2 sm:space-x-3">
+                        <!-- Pre-survey Likert scale options -->
+                    </div>
+                    <span class="text-xs text-slate-500">매우<br>높음</span>
+                </div>
+            </div>
+             <div id="pre-survey-age">
+                 <h4 class="text-lg font-bold text-slate-800 mb-2">3. 연령대</h4>
+                 <p class="text-slate-600 mb-4 text-sm">당신의 연령대를 선택해주세요.</p>
+                 <div id="age-options" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                     <!-- Age options will be generated here -->
+                 </div>
+            </div>
+        </div>
+
+        <button id="start-quiz-button" class="w-full py-3 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition-colors text-lg disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>진단 시작하기</button>
+    </div>
+
+    <div id="quiz-container" class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-6 md:p-8 hidden">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-800 text-center">AI 정보 활용 편향 진단</h1>
+            <p class="text-center text-slate-500 mt-2">당신은 어떤 유형의 AI 정보 함정에 빠지기 쉬울까요?</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progress-container" class="mb-4">
+            <div class="flex justify-between items-center mb-1">
+                <span id="question-counter" class="text-sm font-medium text-slate-600"></span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-2.5">
+                <div id="progress-bar" class="bg-orange-500 h-2.5 rounded-full transition-all duration-500"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Content -->
+        <div id="quiz-content" class="text-center">
+            <p id="quiz-type" class="text-sm font-semibold text-indigo-600 bg-indigo-100 rounded-full py-1 px-3 mb-3 inline-block"></p>
+            <h2 id="question" class="text-lg md:text-xl font-semibold text-slate-700 mb-5 min-h-[6rem] flex items-center justify-center">질문이 여기에 표시됩니다.</h2>
+            <div id="answer-options" class="grid grid-cols-1 gap-3">
+                <!-- Answer options will be dynamically inserted here -->
+            </div>
+            
+            <div class="mt-4 min-h-[16rem]">
+                 <p id="rationale-text" class="rationale text-center p-3 rounded-lg bg-orange-50 text-orange-800 border border-orange-200"></p>
+                 
+                 <div id="solution-placeholder" class="hidden mt-2 text-center p-3 rounded-lg bg-gray-200 text-gray-500 cursor-not-allowed">
+                    <h4 class="font-bold">💡 바른 대응</h4>
+                 </div>
+                 <div id="solution-container" class="rationale mt-2 text-left p-3 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <h4 class="font-bold text-center">💡 바른 대응</h4>
+                    <p id="solution-text" class="mt-1 text-sm"></p>
+                 </div>
+            </div>
+        </div>
+
+        <!-- Next Button -->
+        <div class="flex items-center justify-end mt-6">
+            <button id="next-button" class="px-6 py-2 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition-colors hidden">다음 &rarr;</button>
+        </div>
+    </div>
+    
+    <!-- Results Screen -->
+    <div id="results-container" class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8 text-center hidden">
+        <h2 class="text-3xl font-bold text-slate-800">진단 완료!</h2>
+        <p class="text-slate-500 mt-2">당신이 가장 주의해야 할 AI 정보 편향 유형은...</p>
+        
+        <div id="profile-display" class="my-6">
+            <h3 id="profile-name" class="text-2xl md:text-3xl font-bold text-orange-600 mb-2"></h3>
+            <p id="profile-description" class="text-slate-600 text-lg mb-4"></p>
+            <div class="text-left bg-slate-50 p-4 rounded-lg">
+                <p class="font-semibold text-slate-800">🎯 특징:</p>
+                <p id="profile-strength" class="text-slate-700 mb-2"></p>
+                <p class="font-semibold text-slate-800">💡 솔루션:</p>
+                <p id="profile-weakness" class="text-slate-700"></p>
+            </div>
+        </div>
+
+        <!-- Type Analysis Section -->
+        <div id="type-analysis-container" class="my-8 text-left">
+            <h4 class="text-lg font-bold text-slate-800 mb-3 text-center">나의 편향 분석 결과</h4>
+            <div id="type-counts" class="space-y-2">
+                <!-- Counts will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <div id="survey-container" class="my-8 text-center border-t pt-8 hidden">
+            <h4 class="text-lg font-bold text-slate-800 mb-4">학습 효과 설문</h4>
+            <div id="survey-questions" class="space-y-6">
+                <!-- Survey questions will be dynamically inserted here -->
+            </div>
+            <button id="submit-survey-button" class="mt-8 px-6 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>제출하기</button>
+        </div>
+        
+        <p id="thank-you-message" class="my-8 text-center text-lg font-semibold text-emerald-700 hidden">설문에 참여해주셔서 감사합니다!</p>
+
+        <button id="restart-button" class="w-full py-3 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition-colors text-lg hidden">다시 진단하기</button>
+    </div>
+
+
+    <script>
+        // --- xAPI Configuration (Mock) ---
+        const actor = { "objectType": "Agent", "name": "Test User", "mbox": "mailto:testuser@example.com" };
+        function sendStatement(statement) {
+            console.log("--- New xAPI Statement ---");
+            console.log(JSON.stringify(statement, null, 2));
+        }
+        // --- End of xAPI Configuration ---
+
+        const TYPES = {
+            BELIEF: "맹신 편향",
+            REPRESENTATIVENESS: "일반화 오류",
+            ANCHORING: "정박 효과",
+            FRAMING: "프레이밍 효과" 
+        };
+
+        const VERBS_BY_TYPE = {
+            [TYPES.BELIEF]: { id: "http://example.com/verbs/trusted-blindly", display: { "ko-KR": "맹신함" } },
+            [TYPES.REPRESENTATIVENESS]: { id: "http://example.com/verbs/generalized-hastily", display: { "ko-KR": "성급하게 일반화함" } },
+            [TYPES.ANCHORING]: { id: "http://example.com/verbs/anchored-on-initial-info", display: { "ko-KR": "초기 정보에 의존함" } },
+            [TYPES.FRAMING]: { id: "http://example.com/verbs/influenced-by-framing", display: { "ko-KR": "표현 방식에 영향받음" } }
+        };
+        
+        const QUIZ_TYPES = {
+            FACTUAL_ERROR: "사실 오류",
+            CITATION_ERROR: "인용 오류",
+            ENTITY_TEMPORAL_ERROR: "개체·시간 혼동",
+            NUMERICAL_ERROR: "수치 왜곡",
+            LOGICAL_ERROR: "논리 오류",
+            SUMMARIZATION_DISTORTION: "요약 왜곡",
+            OUTDATED_INFORMATION: "업데이트 결핍",
+            INTERACTION_ERROR: "상호작용 오류"
+        };
+        
+        const quizData = [
+            // === 사실 오류 (2문항) ===
+            {
+                id: "q1",
+                quizType: QUIZ_TYPES.FACTUAL_ERROR,
+                designTargetBias: TYPES.BELIEF, // 맹신
+                question: "AI가 ‘순수한 물은 전기가 전혀 통하지 않는다’고 단정합니다.",
+                solution: "순수한 물은 이온이 거의 없어 전기가 잘 통하지 않지만, 실제 환경의 물은 이온 함량 때문에 전기가 통할 수 있습니다. 교과서/공식 백과사전 등으로 교차 검증하세요.",
+                answerOptions: [
+                    { id: "q1_a1", text: "과학은 잘 모르니까, AI가 단정적으로 말하면 그냥 믿게 된다.", type: TYPES.BELIEF, rationale: "AI가 단정적으로 말한 내용을 과학적 사실로 그대로 받아들이는 것은, AI의 권위를 비판 없이 신뢰하는 '맹신 편향'의 특징입니다." },
+                    { id: "q1_a2", text: "물=깨끗함 이미지가 떠올라 전기가 안 통할 듯하다.", type: TYPES.REPRESENTATIVENESS, rationale: "물의 '깨끗함'이라는 대표적인 이미지에 의존하여 전기 전도성이라는 과학적 사실을 판단하는 것은 '일반화 오류'에 해당합니다." },
+                    { id: "q1_a3", text: "‘비전도체’라는 첫 단어가 강하게 남아 다른 가능성은 생각 안 난다.", type: TYPES.ANCHORING, rationale: "AI가 처음 제시한 '비전도체'라는 정보에 생각이 고정되어 다른 가능성을 탐색하지 못하는 것은 '정박 효과'의 예시입니다." },
+                    { id: "q1_a4", text: "‘전혀’ 같은 단정 표현이 설득력 있게 느껴진다.", type: TYPES.FRAMING, rationale: "정보의 사실 여부보다 ‘전혀’라는 강한 표현(프레임)에 영향을 받아, 예외가 없을 것이라고 판단하게 되는 것은 ‘프레이밍 효과’입니다." }
+                ]
+            },
+            {
+                id: "q2",
+                quizType: QUIZ_TYPES.FACTUAL_ERROR,
+                designTargetBias: TYPES.FRAMING, // 프레이밍
+                question: "AI가 ‘비타민C는 감기를 완전히 예방한다’고 단정합니다.",
+                solution: "‘완전히’ 같은 절대적 표현에 휘둘리지 말고, 체계적 문헌고찰/메타분석 등 근거 수준을 확인하세요.",
+                answerOptions: [
+                    { id: "q2_a1", text: "의학은 잘 몰라서 일단 맞다고 받아들인다.", type: TYPES.BELIEF, rationale: "의학 분야에 대한 자신의 지식이 부족하다는 이유로 AI의 단정적인 주장을 그대로 받아들이는 것은 '맹신 편향'입니다." },
+                    { id: "q2_a2", text: "주변에서도 들은 얘기라 그럴 듯하다.", type: TYPES.REPRESENTATIVENESS, rationale: "주변에서 흔히 들을 수 있는 이야기(대표적 사례)를 근거로 AI의 주장이 맞을 것이라고 성급하게 판단하는 것은 '일반화 오류'입니다." },
+                    { id: "q2_a3", text: "‘예방’이라는 단어만 떠올라 다른 변수는 생각 안 난다.", type: TYPES.ANCHORING, rationale: "AI가 제시한 '예방'이라는 긍정적 단어에 생각이 고정되어, 그 효과의 정도나 조건을 비판적으로 검토하지 못하는 것은 '정박 효과'입니다." },
+                    { id: "q2_a4", text: "‘완전히’ 같은 강한 표현 때문에 사실처럼 느껴진다.", type: TYPES.FRAMING, rationale: "정보의 과학적 근거보다 '완전히'라는 극단적이고 긍정적인 표현(프레임)에 영향을 받아 사실이라고 믿게 되는 것은 '프레이밍 효과'입니다." }
+                ]
+            },
+
+            // === 인용 오류 (2문항) ===
+            {
+                id: "q3",
+                quizType: QUIZ_TYPES.CITATION_ERROR,
+                designTargetBias: TYPES.REPRESENTATIVENESS, // 일반화
+                question: "AI가 ‘데이비드 셸링(2019) 논문에 따르면 사람은 하루 2만 번 결정을 내린다’고 말합니다.",
+                solution: "AI가 그럴듯한 저자/연도/제목을 만들어낼 수 있습니다. 구글 스칼라·RISS·DOI로 실존 논문인지 검증하세요.",
+                answerOptions: [
+                    { id: "q3_a1", text: "저자·연도·제목이 구체적이니 진짜일 것 같다.", type: TYPES.BELIEF, rationale: "저자, 연도, 논문 제목 등 정보가 구체적이라는 이유만으로 실제 존재할 것이라고 믿는 것은 '맹신 편향'의 특징입니다." },
+                    { id: "q3_a2", text: "심리학에서 흔한 주제라 실제 있을 법하다고 느낀다.", type: TYPES.REPRESENTATIVENESS, rationale: "심리학에서 흔히 다룰 법한 주제라는 '전형성'에 기대어 실제 논문일 것이라고 판단하는 것은 '일반화 오류'에 해당합니다." },
+                    { id: "q3_a3", text: "‘2만 번’ 숫자에 먼저 집중되어 출처 검증은 뒤로 미룬다.", type: TYPES.ANCHORING, rationale: "'2019년', '2만 번' 같은 구체적인 숫자에 생각이 꽂혀, 더 중요한 출처의 진위 여부를 확인하지 못하게 되는 것은 '정박 효과'입니다." },
+                    { id: "q3_a4", text: "‘저명한’이라는 수식어가 붙으니 더 믿게 된다.", type: TYPES.FRAMING, rationale: "'저명한 학자'라는 권위적인 표현(프레임) 때문에 내용까지 신뢰하게 되는 것은 '프레이밍 효과'의 영향입니다." }
+                ]
+            },
+            {
+                id: "q4",
+                quizType: QUIZ_TYPES.CITATION_ERROR,
+                designTargetBias: TYPES.BELIEF, // 맹신
+                question: "AI가 ‘국제학술지 X(2020)에 따르면…’이라며 수치를 말하지만 링크·DOI가 없습니다.",
+                solution: "저널/저자/DOI 검색으로 출처 실재 여부를 확인하고, 인용 문구를 원문과 대조하세요.",
+                answerOptions: [
+                    { id: "q4_a1", text: "국제학술지라니 믿을 만하다고 본다.", type: TYPES.BELIEF, rationale: "‘국제학술지’라는 출처의 권위만 믿고, 링크나 DOI 같은 구체적인 근거가 없어도 내용을 신뢰하는 것은 ‘맹신 편향’입니다." },
+                    { id: "q4_a2", text: "이 분야 논문이 많으니 있을 법하다고 여긴다.", type: TYPES.REPRESENTATIVENESS, rationale: "해당 분야에 논문이 많다는 일반적인 사실을 근거로, 이 특정 인용 또한 실재할 것이라고 성급하게 판단하는 것은 ‘일반화 오류’입니다." },
+                    { id: "q4_a3", text: "‘2020’ 같은 디테일만 기억나서 검증을 미룬다.", type: TYPES.ANCHORING, rationale: "AI가 제시한 ‘2020년’이라는 구체적인 연도에만 생각이 고정되어, 더 중요한 출처의 실재 여부 검증을 놓치는 것은 ‘정박 효과’입니다." },
+                    { id: "q4_a4", text: "‘국제’라는 단어가 신뢰감을 높여 그냥 넘어가게 만든다.", type: TYPES.FRAMING, rationale: "정보의 내용과 무관하게 ‘국제’라는 단어가 주는 긍정적이고 권위적인 프레임 때문에 신뢰도가 높아지는 것은 ‘프레이밍 효과’입니다." }
+                ]
+            },
+
+            // === 개체·시간 혼동 (2문항) ===
+            {
+                id: "q5",
+                quizType: QUIZ_TYPES.ENTITY_TEMPORAL_ERROR,
+                designTargetBias: TYPES.ANCHORING, // 정박
+                question: "AI가 ‘조선시대 화가 신윤복은 남성이며, 대표작은 <씨름>이다’라고 말합니다.",
+                solution: "신윤복/김홍도 등 인물·작품 혼동이 잦습니다. 국립중앙박물관/한국민족문화대백과 등 공신력 자료로 구분 확인하세요.",
+                answerOptions: [
+                    { id: "q5_a1", text: "역사 정보니 정확할 것 같다.", type: TYPES.BELIEF, rationale: "자신의 지식이 부족하다는 이유로 AI가 제공한 정보를 아무런 의심 없이 그대로 받아들이는 것은 '맹신 편향'입니다." },
+                    { id: "q5_a2", text: "<씨름>이 유명하니 유명 화가의 작품일 것 같다.", type: TYPES.REPRESENTATIVENESS, rationale: "유명한 그림(<씨름>)은 유명한 화가(신윤복)의 작품일 것이라는 대표적인 사례에 기대어 성급하게 판단하는 것은 '일반화 오류'입니다." },
+                    { id: "q5_a3", text: "먼저 언급된 ‘신윤복’에 생각이 고정된다.", type: TYPES.ANCHORING, rationale: "AI가 처음 제시한 '신윤복'이라는 이름에 생각이 고정되어, 작가가 다른 사람(김홍도)일 가능성을 탐색하지 못하는 것은 '정박 효과'입니다." },
+                    { id: "q5_a4", text: "‘남성’이라는 단정적 표현에 끌려 다른 가능성을 안 본다.", type: TYPES.FRAMING, rationale: "AI가 '남성'이라고 단정적으로 표현한 방식 때문에, 다른 가능성(성별 논란)을 탐색할 필요성을 느끼지 못하게 되는 것은 '프레이밍 효과'입니다." }
+                ]
+            },
+            {
+                id: "q6",
+                quizType: QUIZ_TYPES.ENTITY_TEMPORAL_ERROR,
+                designTargetBias: TYPES.REPRESENTATIVENESS, // 일반화
+                question: "AI가 ‘유명 지도자 A가 2000년대 초 SNS 캠페인을 했다’고 말합니다.",
+                solution: "기본 연표와 SNS 보급 시기를 대조해, 인물/시대 불일치를 점검하세요.",
+                answerOptions: [
+                    { id: "q6_a1", text: "유명 인물이니 그런 활동이 있었겠지 하고 믿는다.", type: TYPES.BELIEF, rationale: "‘유명 지도자’라는 이유만으로 AI가 제시한 비상식적인 정보(2000년대 초 SNS)를 비판 없이 받아들이는 것은 ‘맹신 편향’입니다." },
+                    { id: "q6_a2", text: "유명인은 대개 SNS를 했을 것 같아 그럴 듯하다.", type: TYPES.REPRESENTATIVENESS, rationale: "현대의 유명인은 SNS를 한다는 전형적인 이미지에 기대어, 과거 인물에게도 동일하게 적용될 것이라고 성급하게 판단하는 것은 ‘일반화 오류’입니다." },
+                    { id: "q6_a3", text: "‘SNS’라는 단서에 집중해 시대 불일치를 놓친다.", type: TYPES.ANCHORING, rationale: "‘SNS 캠페인’이라는 흥미로운 키워드에 생각이 꽂혀, ‘2000년대 초’라는 시대적 맥락의 오류를 간과하는 것은 ‘정박 효과’입니다." },
+                    { id: "q6_a4", text: "단정적인 어조 때문에 사실처럼 느껴진다.", type: TYPES.FRAMING, rationale: "AI의 설명이 매우 단정적인 어조로 제시되었기 때문에, 내용의 논리적 모순을 검토하기보다 사실처럼 받아들이게 되는 것은 ‘프레이밍 효과’입니다." }
+                ]
+            },
+
+            // === 수치 왜곡 (2문항) ===
+            {
+                id: "q7",
+                quizType: QUIZ_TYPES.NUMERICAL_ERROR,
+                designTargetBias: TYPES.FRAMING, // 프레이밍
+                question: "AI가 ‘서울 미세먼지 농도는 WHO 기준치의 20배, 세계 최악’이라고 말합니다.",
+                solution: "환경부(에어코리아)/WHO 자료와 기준 정의를 확인해 실제 수치를 비교하세요.",
+                answerOptions: [
+                    { id: "q7_a1", text: "구체적 숫자를 말하니 신뢰가 간다.", type: TYPES.BELIEF, rationale: "AI가 구체적인 숫자를 제시했다는 이유만으로 해당 정보가 정확할 것이라고 믿는 것은 '맹신 편향'의 특징입니다." },
+                    { id: "q7_a2", text: "서울 공기가 나쁘다는 인상과 맞아서 사실 같아 보인다.", type: TYPES.REPRESENTATIVENESS, rationale: "자신이 가진 '서울 공기는 안 좋다'는 기존 인상과 부합하는 정보라고 성급하게 일반화하여 받아들이는 것은 '일반화 오류'입니다." },
+                    { id: "q7_a3", text: "‘20배’라는 숫자에 꽂혀 다른 확인은 미룬다.", type: TYPES.ANCHORING, rationale: "처음 제시된 '20배'라는 강력한 숫자가 기준점이 되어, 정확한 수치를 검증할 필요성을 느끼지 못하게 되는 것은 '정박 효과'입니다." },
+                    { id: "q7_a4", text: "‘세계 최악’ 같은 극단 표현에 감정이 흔들려 검증을 놓친다.", type: TYPES.FRAMING, rationale: "'세계 최악'이라는 부정적이고 극단적인 프레임이 이성적인 판단을 방해하고 감정적으로 수용하게 만드는 것은 '프레이밍 효과'입니다." }
+                ]
+            },
+            {
+                id: "q8",
+                quizType: QUIZ_TYPES.NUMERICAL_ERROR,
+                designTargetBias: TYPES.BELIEF, // 맹신
+                question: "AI가 ‘졸업생 취업률 95%’라고 하지만 표본·기준은 밝히지 않습니다.",
+                solution: "모수/표본/정의가 없는 비율은 오도될 수 있습니다. 원자료·방법을 확인하세요.",
+                answerOptions: [
+                    { id: "q8_a1", text: "숫자가 크고 깔끔하니 믿고 싶어진다.", type: TYPES.BELIEF, rationale: "‘95%’라는 높은 수치가 주는 긍정적인 인상 때문에, 표본이나 기준 등 중요한 맥락 정보 없이도 내용을 신뢰하는 것은 ‘맹신 편향’입니다." },
+                    { id: "q8_a2", text: "주변에서도 취업 잘 된다는 얘기를 들어 사실 같아 보인다.", type: TYPES.REPRESENTATIVENESS, rationale: "주변 몇몇의 취업 성공 사례를 듣고, ‘95%’라는 통계가 사실일 것이라고 성급하게 판단하는 것은 ‘일반화 오류’입니다." },
+                    { id: "q8_a3", text: "‘95%’에 머리가 고정돼 표본 크기는 떠올리지 못한다.", type: TYPES.ANCHORING, rationale: "‘95%’라는 인상적인 숫자에 생각이 고정되어, 그 숫자가 어떤 기준과 표본으로 계산되었는지 확인해야 한다는 점을 간과하는 것은 ‘정박 효과’입니다." },
+                    { id: "q8_a4", text: "‘압도적’ 같은 표현이 신뢰감을 더한다.", type: TYPES.FRAMING, rationale: "‘압도적’이라는 수사적 표현이 주는 긍정적인 프레임 때문에, 해당 통계의 신뢰도를 실제보다 높게 평가하게 되는 것은 ‘프레이밍 효과’입니다." }
+                ]
+            },
+
+            // === 논리 오류 (2문항) ===
+            {
+                id: "q9",
+                quizType: QUIZ_TYPES.LOGICAL_ERROR,
+                designTargetBias: TYPES.REPRESENTATIVENESS, // 일반화
+                question: "AI가 ‘A기업이 AI 프로젝트 발표 후 주가가 15% 상승했다 → AI 프로젝트가 주가 상승의 주원인’이라고 분석합니다.",
+                solution: "상관관계는 인과관계가 아닙니다. 시장 전체의 상승, 다른 호재 발표 등 제3의 요인을 함께 검토해야 합니다.",
+                answerOptions: [
+                    { id: "q9_a1", text: "AI가 데이터 기반으로 분석했으니 맞는 말일 것이다.", type: TYPES.BELIEF, rationale: "AI가 ‘데이터 기반 분석’을 했다는 사실만으로, 상관관계를 인과관계로 비약한 논리적 오류를 검토 없이 받아들이는 것은 ‘맹신 편향’입니다." },
+                    { id: "q9_a2", text: "요즘 AI 관련주가 다 오르는 추세이니, 이 회사도 AI 때문에 오른 게 맞을 것 같다.", type: TYPES.REPRESENTATIVENESS, rationale: "‘AI 관련주 상승’이라는 시장의 대표적 트렌드를 이 기업의 개별 상황에 성급하게 적용하여 원인이라고 단정하는 것은 ‘일반화 오류’입니다." },
+                    { id: "q9_a3", text: "‘15% 상승’이라는 숫자에 고정돼서, 시장 전체의 흐름이나 다른 호재 같은 요인은 잘 안 떠오른다.", type: TYPES.ANCHORING, rationale: "‘15% 상승’이라는 구체적인 숫자에 생각이 고정되어, 주가에 영향을 미쳤을 다른 중요한 요인들을 간과하게 되는 것은 ‘정박 효과’입니다." },
+                    { id: "q9_a4", text: "‘주가 상승’이라는 긍정적인 결과에 집중하게 되어, 원인 분석의 논리적 결함은 간과하게 된다.", type: TYPES.FRAMING, rationale: "‘주가 상승’이라는 긍정적인 프레임 때문에, 원인 분석의 논리적 결함을 비판적으로 검토하기보다 긍정적으로 수용하게 되는 것은 ‘프레이밍 효과’입니다." }
+                ]
+            },
+            {
+                id: "q10",
+                quizType: QUIZ_TYPES.LOGICAL_ERROR,
+                designTargetBias: TYPES.ANCHORING, // 정박
+                question: "사내 보고서에 ‘화상회의 기능 도입 후 만족도 12%↑ → 기능이 성과의 주원인’이라고 적혀 있습니다.",
+                solution: "상관≠인과. 동시 변화(목표·인력·업무 설계), 대조군·통제변수를 확인하세요.",
+                answerOptions: [
+                    { id: "q10_a1", text: "수치와 공식 결론이 있으니 믿는다.", type: TYPES.BELIEF, rationale: "사내 공식 보고서라는 출처의 권위만 믿고, 내용의 논리적 비약(상관관계→인과관계)을 검토하지 않는 것은 '맹신 편향'입니다." },
+                    { id: "q10_a2", text: "우리 팀도 기능만 도입하면 비슷한 효과를 볼 것 같다.", type: TYPES.REPRESENTATIVENESS, rationale: "다른 기업의 특정 사례를 자신의 상황(우리 팀)에도 그대로 적용될 것이라고 성급하게 판단하는 것은 '일반화 오류'입니다." },
+                    { id: "q10_a3", text: "‘12%’라는 숫자에 고정돼 다른 요인을 떠올리지 못한다.", type: TYPES.ANCHORING, rationale: "'12% 증가'라는 구체적인 숫자에 생각이 고정되어, 생산성 증가에 영향을 미쳤을 다른 중요한 요인들을 간과하게 되는 것은 '정박 효과'입니다." },
+                    { id: "q10_a4", text: "‘주원인·향상’ 같은 표현이 긍정적으로 들려 자연스럽게 수용한다.", type: TYPES.FRAMING, rationale: "'생산성 향상'이라는 긍정적인 프레임 때문에, 주장의 논리적 결함을 비판적으로 검토하기보다 긍정적으로 수용하게 되는 것은 '프레이밍 효과'입니다." }
+                ]
+            },
+
+            // === 요약 왜곡 (2문항) ===
+            {
+                id: "q11",
+                quizType: QUIZ_TYPES.SUMMARIZATION_DISTORTION,
+                designTargetBias: TYPES.BELIEF, // 맹신
+                question: "회사 발표 원문은 ‘감원을 고려 중’인데, AI 요약은 ‘감원 확정’이라고 합니다.",
+                solution: "‘고려’와 ‘확정’은 전혀 다릅니다. 요약만 보지 말고 원문을 반드시 확인하세요.",
+                answerOptions: [
+                    { id: "q11_a1", text: "AI가 요약했으니 대체로 맞을 거라고 생각한다.", type: TYPES.BELIEF, rationale: "AI의 요약 능력을 비판 없이 신뢰하고, 요약 과정에서 심각한 왜곡이 발생할 수 있다는 점을 간과하는 것은 '맹신 편향'입니다." },
+                    { id: "q11_a2", text: "요즘 흐름상 그럴 법하다고 느낀다.", type: TYPES.REPRESENTATIVENESS, rationale: "'경기 침체'라는 대표적인 사회 현상에 기대어, 해당 회사의 개별적인 상황을 성급하게 일반화하는 것은 '일반화 오류'입니다." },
+                    { id: "q11_a3", text: "‘확정’이라는 단어에 꽂혀 원문 확인을 건너뛴다.", type: TYPES.ANCHORING, rationale: "'확정'이라는 강한 단어가 기준점이 되어, '고려'일 수 있다는 다른 해석의 가능성을 차단하는 것은 '정박 효과'입니다." },
+                    { id: "q11_a4", text: "‘대규모 감원’ 같은 표현에 감정이 흔들려 그대로 믿게 된다.", type: TYPES.FRAMING, rationale: "'대규모 감원'이라는 극단적인 표현(프레임) 때문에, 사실 관계를 따지기보다 내용의 심각성에 압도되는 것은 '프레이밍 효과'입니다." }
+                ]
+            },
+            {
+                id: "q12",
+                quizType: QUIZ_TYPES.SUMMARIZATION_DISTORTION,
+                designTargetBias: TYPES.ANCHORING, // 정박
+                question: "AI 요약: ‘정부 정책이 이미 확정’ → 실제 원문은 ‘논의 중’입니다.",
+                solution: "요약과 원문을 반드시 대조해 의미 왜곡을 잡아내세요.",
+                answerOptions: [
+                    { id: "q12_a1", text: "AI 요약이니 사실에 가까울 것이다.", type: TYPES.BELIEF, rationale: "AI가 요약한 정보는 원문과 거의 일치할 것이라는 막연한 믿음으로, 내용의 정확성을 의심하지 않는 것은 ‘맹신 편향’입니다." },
+                    { id: "q12_a2", text: "최근 뉴스 분위기와 맞아서 별 의심이 안 든다.", type: TYPES.REPRESENTATIVENESS, rationale: "최근 뉴스에서 자주 접한 분위기(대표적 사례)와 요약 내용이 일치한다고 느껴, 원문 대조의 필요성을 느끼지 못하는 것은 ‘일반화 오류’입니다." },
+                    { id: "q12_a3", text: "‘확정’이라는 단어가 기준점이 되어 다른 해석이 잘 안 보인다.", type: TYPES.ANCHORING, rationale: "AI가 제시한 ‘확정’이라는 첫 단어에 생각이 고정되어, 실제로는 ‘논의 중’일 수 있다는 다른 가능성을 탐색하지 못하는 것은 ‘정박 효과’입니다." },
+                    { id: "q12_a4", text: "강한 어조/표현에 끌려 사실처럼 느껴진다.", type: TYPES.FRAMING, rationale: "AI 요약의 강한 어조와 단정적인 표현(프레임) 때문에, 원문보다 요약본이 더 사실처럼 느껴지게 되는 것은 ‘프레이밍 효과’입니다." }
+                ]
+            },
+
+            // === 구식 정보 (2문항) ===
+            {
+                id: "q13",
+                quizType: QUIZ_TYPES.OUTDATED_INFORMATION,
+                designTargetBias: TYPES.REPRESENTATIVENESS, // 일반화
+                question: "AI가 ‘2025년 현재 스마트폰 충전 단자는 마이크로 5핀이 보편적’이라고 말합니다.",
+                solution: "빠르게 변하는 기술 표준은 제조사 스펙/최근 리뷰로 최신성을 확인하세요.",
+                answerOptions: [
+                    { id: "q13_a1", text: "AI는 IT 기기를 잘 아니까 맞을 것이다.", type: TYPES.BELIEF, rationale: "AI가 기술 정보를 잘 알 것이라는 막연한 믿음으로, 정보의 최신성을 확인하지 않고 받아들이는 것은 '맹신 편향'입니다." },
+                    { id: "q13_a2", text: "예전에 내 폰도 5핀이었으니 아직 그럴 것 같다.", type: TYPES.REPRESENTATIVENESS, rationale: "자신의 과거 경험이라는 단편적 사례를 현재의 전체 상황으로 확대 해석하여 판단하는 것은 '일반화 오류'에 해당합니다." },
+                    { id: "q13_a3", text: "처음 언급된 ‘5핀’에 생각이 고정된다.", type: TYPES.ANCHORING, rationale: "처음 제시된 '마이크로 5핀'이라는 낡은 정보에 생각이 고정되어, 최신 표준(USB-C)을 적극적으로 고려하지 못하는 것은 '정박 효과'입니다." },
+                    { id: "q13_a4", text: "‘보편적’이라는 표현이 신뢰감을 준다.", type: TYPES.FRAMING, rationale: "'가장 보편적'이라는 표현(프레임)이, 실제로는 표준이 바뀌고 있는 상황을 정확하게 인지하는 것을 방해하는 것은 '프레이밍 효과'입니다." }
+                ]
+            },
+            {
+                id: "q14",
+                quizType: QUIZ_TYPES.OUTDATED_INFORMATION,
+                designTargetBias: TYPES.FRAMING, // 프레이밍
+                question: "AI가 ‘올해도 대부분 스마트폰에 유선 이어폰이 기본 제공된다’고 말합니다.",
+                solution: "제조사 정책은 자주 바뀝니다. 공식 공지/제품 페이지로 확인하세요.",
+                answerOptions: [
+                    { id: "q14_a1", text: "기기 정보는 AI가 잘 알 것 같아 그냥 믿는다.", type: TYPES.BELIEF, rationale: "AI가 기기 구성품 같은 구체적인 정보를 정확히 알 것이라고 비판 없이 믿는 것은 ‘맹신 편향’입니다." },
+                    { id: "q14_a2", text: "예전에 그랬으니 지금도 그럴 듯하다.", type: TYPES.REPRESENTATIVENESS, rationale: "과거에는 이어폰을 제공했다는 대표적인 경험에 의존하여, 현재 정책도 동일할 것이라고 성급하게 판단하는 것은 ‘일반화 오류’입니다." },
+                    { id: "q14_a3", text: "‘대부분’이라는 표현이 먼저 들어와 최신 변화를 안 본다.", type: TYPES.ANCHORING, rationale: "AI가 제시한 ‘대부분’이라는 표현에 생각이 고정되어, 최근 정책 변화라는 새로운 정보를 탐색하지 못하는 것은 ‘정박 효과’입니다." },
+                    { id: "q14_a4", text: "‘기본 제공’이라는 표현 때문에 사실처럼 느껴진다.", type: TYPES.FRAMING, rationale: "‘기본 제공’이라는 긍정적인 프레임에 영향을 받아, 정책이 변경되었을 가능성을 비판적으로 검토하지 않게 되는 것은 ‘프레이밍 효과’입니다." }
+                ]
+            },
+
+            // === 상호작용 오류 (2문항) ===
+            {
+                id: "q15",
+                quizType: QUIZ_TYPES.INTERACTION_ERROR,
+                designTargetBias: TYPES.ANCHORING, // 정박
+                question: "사용자가 ‘3개 글머리 요약, ‘기술’ 단어 금지’라고 지시했지만 AI는 5개로 만들고 ‘기술’을 반복합니다.",
+                solution: "AI는 부정형/수량 제약을 놓치기 쉽습니다. 조건을 긍정형·구체형으로 재지시하고 결과를 재검토하세요.",
+                answerOptions: [
+                    { id: "q15_a1", text: "조건을 어겼지만 결과가 더 좋아 보이니 그대로 쓴다.", type: TYPES.BELIEF, rationale: "AI의 명백한 지시 불이행을 '더 나은 판단'일 것이라고 합리화하며 비판 없이 수용하는 것은 '맹신 편향'의 특징입니다." },
+                    { id: "q15_a2", text: "AI는 원래 지시를 잘 안 지키니까 그러려니 한다.", type: TYPES.REPRESENTATIVENESS, rationale: "AI의 특정 오류를 '원래 그렇다'는 식으로 성급하게 일반화하고 문제 해결을 포기하는 것은 '일반화 오류'에 해당합니다." },
+                    { id: "q15_a3", text: "AI가 ‘요약’ 요구에만 집중해 나머지 조건을 놓친 것 같다고만 생각한다.", type: TYPES.ANCHORING, rationale: "자신이 내린 여러 지시 중 '요약'이라는 첫 번째 요소에만 생각이 고정되어, 다른 제약 조건들이 무시된 것을 간과하는 것은 '정박 효과'입니다." },
+                    { id: "q15_a4", text: "조건 위반을 ‘창의적 재해석’으로 받아들여 문제로 보지 않는다.", type: TYPES.FRAMING, rationale: "명백한 오류를 '창의적 재해석'이라는 긍정적인 프레임으로 받아들여 문제 상황을 왜곡하여 인식하는 것은 '프레이밍 효과'입니다." }
+                ]
+            },
+            {
+                id: "q16",
+                quizType: QUIZ_TYPES.INTERACTION_ERROR,
+                designTargetBias: TYPES.FRAMING, // 프레이밍
+                question: "AI에게 ‘15세기 기사처럼 말해달라’고 했더니, AI가 ‘반갑네! 나는 이메일을 확인하고 왕과 줌 회의를 하며 하루를 시작하지.’라고 답했습니다.",
+                solution: "AI가 설정된 역할(페르소나)을 유지하지 못하고 시대에 맞지 않는 개념(이메일, 줌)을 혼합하는 오류임을 인지해야 합니다.",
+                answerOptions: [
+                    { id: "q16_a1", text: "내가 모르는 역사적 사실이 있나 보다 하고 그냥 넘어간다.", type: TYPES.BELIEF, rationale: "AI가 제시한 명백한 시대적 오류를 자신의 지식 부족으로 여기고 비판 없이 수용하는 것은 '맹신 편향'입니다." },
+                    { id: "q16_a2", text: "AI가 원래 역할극은 잘 못하니까, 그냥 그러려니 한다.", type: TYPES.REPRESENTATIVENESS, rationale: "AI의 특정 오류(페르소나 불일치)를 '원래 그렇다'는 식으로 성급하게 일반화하고 문제로 인식하지 않는 것은 '일반화 오류'입니다." },
+                    { id: "q16_a3", text: "‘기사’라는 역할에만 집중해서, ‘이메일’이나 ‘줌’ 같은 시대 오류는 그냥 흘려듣게 된다.", type: TYPES.ANCHORING, rationale: "요청의 핵심인 '기사' 역할에만 생각이 고정되어, 내용의 명백한 오류를 간과하게 되는 것은 '정박 효과'입니다." },
+                    { id: "q16_a4", text: "오류라기보다, AI가 현대적으로 재해석한 창의적인 답변이라고 긍정적으로 생각한다.", type: TYPES.FRAMING, rationale: "명백한 오류를 ‘창의적 재해석’이라는 긍정적 프레임으로 받아들여 문제 상황을 왜곡하여 인식하는 것은 '프레이밍 효과'입니다." }
+                ]
+            }
+        ];
+
+        const surveyQuestions = [
+            { id: "understanding", text: "이 진단을 통해 AI 할루시네이션 유형에 대한 이해가 생기셨습니까?" },
+            { id: "judgment", text: "이 진단은 AI 할루시네이션을 판단하는데 도움이 되었습니까?" },
+            { id: "confidence", text: "진단 참여 전과 비교하여, AI 정보 활용에 대한 자신감이 향상되었습니까?" },
+            { id: "application", text: "향후 AI를 활용할 때, 오늘 배운 편향 유형들을 의식적으로 점검할 의향이 있습니까?" },
+            { id: "recommendation", text: "이 진단 도구를 다른 사람에게 추천하시겠습니까?" }
+        ];
+
+        const startContainer = document.getElementById('start-container');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        
+        const questionEl = document.getElementById('question');
+        const answerOptionsEl = document.getElementById('answer-options');
+        const nextButton = document.getElementById('next-button');
+        const restartButton = document.getElementById('restart-button');
+        const rationaleTextEl = document.getElementById('rationale-text');
+        const progressBar = document.getElementById('progress-bar');
+        const questionCounter = document.getElementById('question-counter');
+        const profileNameEl = document.getElementById('profile-name');
+        const profileDescriptionEl = document.getElementById('profile-description');
+        const profileStrengthEl = document.getElementById('profile-strength');
+        const profileWeaknessEl = document.getElementById('profile-weakness');
+        const quizTypeEl = document.getElementById('quiz-type');
+        
+        const solutionPlaceholder = document.getElementById('solution-placeholder');
+        const solutionContainer = document.getElementById('solution-container');
+        const solutionText = document.getElementById('solution-text');
+        
+        const surveyContainer = document.getElementById('survey-container');
+        const submitSurveyButton = document.getElementById('submit-survey-button');
+        const thankYouMessage = document.getElementById('thank-you-message');
+        
+        const startQuizButton = document.getElementById('start-quiz-button');
+        const preSurveyLikertScale = document.getElementById('pre-survey-likert-scale');
+
+        let currentQuestionIndex = 0;
+        let shuffledQuizData = [];
+        let typeCounts = {};
+
+        function initializeApp() {
+            setupStartScreen();
+            startContainer.classList.remove('hidden');
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.add('hidden');
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            
+            typeCounts = Object.values(TYPES).reduce((acc, type) => {
+                acc[type] = 0;
+                return acc;
+            }, {});
+            
+            shuffledQuizData = [...quizData].sort(() => Math.random() - 0.5);
+            
+            startContainer.classList.add('hidden');
+            resultsContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+
+            nextButton.classList.add('hidden');
+            nextButton.textContent = '다음 →';
+            
+            surveyContainer.classList.add('hidden');
+            thankYouMessage.classList.add('hidden');
+            restartButton.classList.add('hidden');
+
+            showQuestion();
+            updateProgress();
+        }
+
+        function showQuestion() {
+            resetState();
+            const currentQuestion = shuffledQuizData[currentQuestionIndex];
+
+            quizTypeEl.textContent = `오류 유형: ${currentQuestion.quizType}`;
+            questionEl.textContent = currentQuestion.question;
+            
+            solutionPlaceholder.classList.remove('hidden');
+            
+            const shuffledOptions = [...currentQuestion.answerOptions].sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option.text;
+                button.classList.add('quiz-option', 'w-full', 'text-left', 'p-4', 'border', 'border-slate-300', 'rounded-lg', 'bg-slate-50', 'hover:bg-slate-200');
+                
+                button.dataset.rationale = `<strong>[${option.type}]</strong> ${option.rationale}`;
+                button.dataset.type = option.type;
+                button.dataset.optionId = option.id;
+                
+                button.addEventListener('click', selectAnswer);
+                answerOptionsEl.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            while (answerOptionsEl.firstChild) {
+                answerOptionsEl.removeChild(answerOptionsEl.firstChild);
+            }
+            answerOptionsEl.removeAttribute('data-answered');
+            nextButton.classList.add('hidden');
+            rationaleTextEl.classList.remove('show');
+            rationaleTextEl.innerHTML = '';
+
+            solutionPlaceholder.classList.add('hidden');
+            solutionContainer.classList.remove('show');
+            solutionText.textContent = '';
+        }
+
+        function selectAnswer(e) {
+            const selectedButton = e.target.closest('button');
+            if (!selectedButton) return;
+
+            const isAnswered = answerOptionsEl.dataset.answered === 'true';
+
+            if (!isAnswered) {
+                answerOptionsEl.dataset.answered = 'true';
+
+                const selectedType = selectedButton.dataset.type;
+                typeCounts[selectedType]++;
+
+                const currentQuestion = shuffledQuizData[currentQuestionIndex];
+                const statement = {
+                    actor: actor,
+                    verb: VERBS_BY_TYPE[selectedType],
+                    object: {
+                        id: `http://example.com/quiz/bias-test/${currentQuestion.id}`,
+                        definition: {
+                            name: { "ko-KR": currentQuestion.question },
+                            type: "http://adlnet.gov/expapi/activities/cmi.interaction",
+                            interactionType: "choice",
+                            choices: currentQuestion.answerOptions.map(opt => ({
+                                id: opt.id, description: { "ko-KR": opt.text }
+                            }))
+                        }
+                    },
+                    result: { response: selectedButton.dataset.optionId },
+                    context: {
+                        extensions: {
+                            "http://example.com/xapi/extensions/bias-type": selectedType,
+                            "http://example.com/xapi/extensions/quiz-type": currentQuestion.quizType,
+                            "http://example.com/xapi/extensions/design-target-bias": currentQuestion.designTargetBias
+                        }
+                    }
+                };
+                sendStatement(statement);
+                
+                selectedButton.classList.add('selected-answer');
+                
+                solutionPlaceholder.classList.add('hidden');
+                solutionText.textContent = currentQuestion.solution;
+                solutionContainer.classList.add('show');
+
+                nextButton.classList.remove('hidden');
+
+                if (currentQuestionIndex === shuffledQuizData.length - 1) {
+                    nextButton.textContent = '결과 보기 →';
+                }
+            }
+            
+            rationaleTextEl.innerHTML = selectedButton.dataset.rationale;
+            rationaleTextEl.classList.add('show');
+        }
+
+        function showNextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+            updateProgress();
+        }
+
+        function updateProgress() {
+            questionCounter.textContent = `문제 ${currentQuestionIndex + 1} / ${shuffledQuizData.length}`;
+            const progressPercentage = ((currentQuestionIndex + 1) / shuffledQuizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+        
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            const sortedTypes = Object.entries(typeCounts).sort(([,a],[,b]) => b-a);
+            const dominantType = sortedTypes[0][0];
+            let profile = {};
+            
+            switch(dominantType) {
+                case TYPES.BELIEF:
+                    profile = {
+                        name: '절대적 맹신형',
+                        description: 'AI의 권위를 높게 평가하며, 그럴듯한 정보에 대해 비판 없이 수용하는 경향이 있습니다.',
+                        strength: 'AI를 신뢰하고 적극적으로 활용하여 빠르게 정보를 습득하지만, 그 정보가 거짓일 경우 치명적인 판단 오류를 겪을 수 있습니다.',
+                        weakness: '모든 AI 답변 끝에 "이 정보는 틀릴 수 있으니, 중요한 내용은 반드시 공식 출처에서 확인해"라고 스스로에게 상기시켜 보세요.'
+                    };
+                    break;
+                case TYPES.REPRESENTATIVENESS:
+                    profile = {
+                        name: '성급한 일반화형',
+                        description: '소수의 사례나 전형적인 이미지에 의존하여 전체를 판단하려는 경향이 있습니다.',
+                        strength: '복잡한 문제를 단순화하여 빠르게 결론을 내리지만, 그 과정에서 중요한 세부사항이나 통계적 사실을 무시할 위험이 큽니다.',
+                        weakness: "AI가 제시한 사례가 '전체'를 설명하는지, 아니면 그저 '일부'의 특징일 뿐인지 항상 질문하는 습관을 들이세요."
+                    };
+                    break;
+                case TYPES.ANCHORING:
+                     profile = {
+                        name: '첫인상 의존형',
+                        description: 'AI가 처음 제시한 정보(특히 숫자)에 생각이 묶여, 이후의 판단이 크게 좌우되는 경향이 있습니다.',
+                        strength: '초기 정보를 바탕으로 빠르게 판단의 기준을 세우지만, 그 기준이 잘못되었을 경우 올바른 결론에서 크게 벗어날 수 있습니다.',
+                        weakness: 'AI의 답변을 본 후, 의도적으로 "만약 이 첫 정보가 없다면 어떻게 판단할까?"라고 질문을 던져 처음의 기준점에서 벗어나 보세요.'
+                    };
+                    break;
+                case TYPES.FRAMING:
+                    profile = {
+                        name: '분위기 민감형',
+                        description: '정보의 핵심 내용보다, 정보가 제시되는 방식(긍정적/부정적 표현)에 더 크게 영향을 받습니다.',
+                        strength: '글의 뉘앙스나 숨은 의도를 잘 파악하지만, 사실 관계를 따지기보다 감성적인 판단에 치우칠 위험이 있습니다.',
+                        weakness: 'AI가 제시한 정보를 의도적으로 반대되는 표현(긍정→부정, 손실→이득)으로 바꾸어 다시 읽어보며, 내 판단이 달라지는지 확인해보세요.'
+                    };
+                    break;
+            }
+            
+            profileNameEl.textContent = profile.name;
+            profileDescriptionEl.textContent = profile.description;
+            profileStrengthEl.textContent = profile.strength;
+            profileWeaknessEl.textContent = profile.weakness;
+
+            const typeCountsEl = document.getElementById('type-counts');
+            typeCountsEl.innerHTML = '';
+            
+            Object.entries(TYPES).forEach(([key, type]) => {
+                const count = typeCounts[type] || 0;
+                const totalAnswers = shuffledQuizData.length;
+                const percentage = totalAnswers > 0 ? (count / totalAnswers) * 100 : 0;
+                const typeEl = document.createElement('div');
+                typeEl.classList.add('flex', 'items-center', 'justify-between', 'text-sm', 'p-1');
+                typeEl.innerHTML = `
+                    <span class="font-medium text-slate-600 w-1/3">${type}</span>
+                    <div class="flex items-center w-2/3">
+                        <div class="w-full bg-slate-200 rounded-full h-4 mr-2">
+                            <div class="bg-orange-500 h-4 rounded-full flex items-center justify-center text-white text-xs font-bold" style="width: ${percentage}%">
+                                ${Math.round(percentage)}%
+                            </div>
+                        </div>
+                        <span class="font-semibold text-slate-700 w-12 text-right">${count}회</span>
+                    </div>
+                `;
+                typeCountsEl.appendChild(typeEl);
+            });
+            
+            setupSurvey();
+            surveyContainer.classList.remove('hidden');
+        }
+
+        function handleNextButtonClick() {
+            if (currentQuestionIndex < shuffledQuizData.length - 1) {
+                showNextQuestion();
+            } else {
+                showResults();
+            }
+        }
+        
+        function checkAllSurveyAnswered() {
+            const totalQuestions = surveyQuestions.length;
+            const answeredQuestions = document.querySelectorAll('.survey-item .selected').length;
+            submitSurveyButton.disabled = totalQuestions !== answeredQuestions;
+        }
+
+        function setupStartScreen() {
+            const preSurveyContainer = document.getElementById('pre-survey-container');
+            
+            const competencyEl = preSurveyContainer.querySelector('#pre-survey-competency');
+            const frequencyEl = preSurveyContainer.querySelector('#pre-survey-frequency');
+            const ageEl = preSurveyContainer.querySelector('#pre-survey-age');
+
+            // 1. 사용 빈도
+            const freqOptionsContainer = frequencyEl.querySelector('#frequency-options');
+            const freqOptions = ['거의 안 씀', '월 1~3회', '주 1~3회', '거의 매일'];
+            freqOptionsContainer.innerHTML = '';
+            freqOptions.forEach(opt => {
+                const button = document.createElement('button');
+                button.textContent = opt;
+                button.dataset.value = opt;
+                button.classList.add('pre-survey-option', 'p-2', 'border', 'rounded-md', 'text-sm', 'bg-white', 'hover:bg-slate-100');
+                freqOptionsContainer.appendChild(button);
+            });
+            freqOptionsContainer.addEventListener('click', (e) => handleOptionSelection(e, freqOptionsContainer, 'pre-survey-option'));
+
+            // 2. 역량 평가
+            const competencyScale = competencyEl.querySelector('#pre-survey-likert-scale');
+            competencyScale.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.dataset.value = i;
+                button.classList.add('likert-option', 'w-10', 'h-10', 'rounded-full', 'border', 'border-gray-300', 'bg-gray-100', 'hover:bg-gray-200', 'flex', 'items-center', 'justify-center', 'font-semibold');
+                competencyScale.appendChild(button);
+            }
+            competencyScale.addEventListener('click', (e) => handleOptionSelection(e, competencyScale, 'likert-option'));
+
+            
+            // 3. 연령대
+            const ageOptionsContainer = ageEl.querySelector('#age-options');
+            const ageOptions = ['10~20대', '30~40대', '50~60대', '70대 이상'];
+            ageOptionsContainer.innerHTML = '';
+            ageOptions.forEach(opt => {
+                const button = document.createElement('button');
+                button.textContent = opt;
+                button.dataset.value = opt;
+                button.classList.add('pre-survey-option', 'p-2', 'border', 'rounded-md', 'text-sm', 'bg-white', 'hover:bg-slate-100');
+                ageOptionsContainer.appendChild(button);
+            });
+            ageOptionsContainer.addEventListener('click', (e) => handleOptionSelection(e, ageOptionsContainer, 'pre-survey-option'));
+        }
+
+        function checkPreSurveyCompletion() {
+            const competencyAnswered = document.querySelector('#pre-survey-competency .selected');
+            const frequencyAnswered = document.querySelector('#pre-survey-frequency .selected');
+            const ageAnswered = document.querySelector('#pre-survey-age .selected');
+            startQuizButton.disabled = !(competencyAnswered && frequencyAnswered && ageAnswered);
+        }
+
+        function handleOptionSelection(event, container, optionClass) {
+            const selected = event.target.closest(`.${optionClass}`);
+            if (!selected) return;
+            
+            const parentContainer = container.closest('div');
+
+            Array.from(parentContainer.querySelectorAll(`.${optionClass}`)).forEach(child => {
+                 child.classList.remove('selected');
+            });
+
+            selected.classList.add('selected');
+            checkPreSurveyCompletion();
+        }
+        
+        function setupSurvey() {
+            const surveyQuestionsEl = document.getElementById('survey-questions');
+            surveyQuestionsEl.innerHTML = ''; 
+
+            surveyQuestions.forEach((question, index) => {
+                const questionContainer = document.createElement('div');
+                questionContainer.id = `survey-q-${question.id}`;
+                questionContainer.classList.add('survey-item', 'text-left', 'p-4', 'border', 'rounded-lg');
+
+                const questionText = document.createElement('p');
+                questionText.classList.add('font-medium', 'text-slate-700', 'mb-3');
+                questionText.textContent = `${index + 1}. ${question.text}`;
+
+                const scaleContainer = document.createElement('div');
+                scaleContainer.classList.add('flex', 'justify-between', 'items-center');
+
+                const labelStart = document.createElement('span');
+                labelStart.classList.add('text-xs', 'text-slate-500', 'text-center');
+                labelStart.innerHTML = '매우<br>아니다';
+                
+                const likertButtons = document.createElement('div');
+                likertButtons.classList.add('flex', 'justify-center', 'items-center', 'space-x-2');
+
+                for (let i = 1; i <= 5; i++) {
+                    const button = document.createElement('button');
+                    button.textContent = i;
+                    button.dataset.value = i;
+                    button.classList.add('likert-option', 'w-8', 'h-8', 'sm:w-10', 'sm:h-10', 'rounded-full', 'border', 'border-gray-300', 'bg-gray-100', 'hover:bg-gray-200', 'flex', 'items-center', 'justify-center', 'font-semibold');
+                    likertButtons.appendChild(button);
+                }
+
+                const labelEnd = document.createElement('span');
+                labelEnd.classList.add('text-xs', 'text-slate-500', 'text-center');
+                labelEnd.innerHTML = '매우<br>그렇다';
+
+                scaleContainer.appendChild(labelStart);
+                scaleContainer.appendChild(likertButtons);
+                scaleContainer.appendChild(labelEnd);
+                
+                questionContainer.appendChild(questionText);
+                questionContainer.appendChild(scaleContainer);
+
+                surveyQuestionsEl.appendChild(questionContainer);
+
+                likertButtons.addEventListener('click', (e) => {
+                    const selected = e.target.closest('.likert-option');
+                    if (!selected) return;
+
+                    Array.from(likertButtons.children).forEach(child => {
+                        child.classList.remove('selected');
+                    });
+                    selected.classList.add('selected');
+                    
+                    checkAllSurveyAnswered();
+                });
+            });
+        }
+        
+        startQuizButton.addEventListener('click', () => {
+            const competencyValue = document.querySelector('#pre-survey-competency .selected')?.dataset.value;
+            const frequencyValue = document.querySelector('#pre-survey-frequency .selected')?.dataset.value;
+            const ageValue = document.querySelector('#pre-survey-age .selected')?.dataset.value;
+
+            if (!competencyValue || !frequencyValue || !ageValue) return;
+
+            const preSurveyStatement = {
+                actor: actor,
+                verb: {
+                    id: "http://adlnet.gov/expapi/verbs/answered",
+                    display: { "ko-KR": "사전응답함" }
+                },
+                object: {
+                    id: "http://example.com/quiz/bias-test/pre-survey",
+                    definition: {
+                        name: { "ko-KR": "사전 설문" },
+                        description: { "ko-KR": "진단 시작 전 사용자의 배경 정보에 대한 설문입니다." },
+                        type: "http://adlnet.gov/expapi/activities/assessment"
+                    }
+                },
+                result: {
+                    extensions: {
+                        "http://example.com/xapi/extensions/competency": parseInt(competencyValue, 10),
+                        "http://example.com/xapi/extensions/usage-frequency": frequencyValue,
+                        "http://example.com/xapi/extensions/age-group": ageValue
+                    }
+                }
+            };
+            sendStatement(preSurveyStatement);
+            
+            startQuiz();
+        });
+
+        submitSurveyButton.addEventListener('click', () => {
+            const responses = {};
+            const surveyItems = document.querySelectorAll('.survey-item');
+
+            surveyItems.forEach(item => {
+                const questionId = item.id.replace('survey-q-', '');
+                const selectedOption = item.querySelector('.selected');
+                if (selectedOption) {
+                    responses[questionId] = parseInt(selectedOption.dataset.value, 10);
+                }
+            });
+            
+            if (Object.keys(responses).length !== surveyQuestions.length) return;
+
+            const surveyStatement = {
+                actor: actor,
+                verb: {
+                    id: "http://adlnet.gov/expapi/verbs/answered",
+                    display: { "ko-KR": "응답함" }
+                },
+                object: {
+                    id: "http://example.com/quiz/bias-test/post-survey",
+                    definition: {
+                        name: { "ko-KR": "학습 효과 설문" },
+                        description: { "ko-KR": "진단 완료 후 학습 효과에 대한 설문입니다." },
+                        type: "http://adlnet.gov/expapi/activities/assessment"
+                    }
+                },
+                result: {
+                    extensions: {
+                        "http://example.com/xapi/extensions/survey-responses": responses
+                    }
+                }
+            };
+            sendStatement(surveyStatement);
+            
+            surveyContainer.classList.add('hidden');
+            thankYouMessage.classList.remove('hidden');
+            restartButton.classList.remove('hidden');
+        });
+        
+        nextButton.addEventListener('click', handleNextButtonClick);
+        restartButton.addEventListener('click', initializeApp);
+
+        initializeApp();
+    </script>
+
+</body>
 </html>
+
