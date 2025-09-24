@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/xapi-wrapper@2.2.1/dist/xapiwrapper.min.js"></script>
     <style>
-        
         body {
             font-family: 'Noto Sans KR', sans-serif;
         }
@@ -119,7 +118,7 @@
                 <!-- Answer options will be dynamically inserted here -->
             </div>
             
-            <div class="mt-4 min-h-[16rem]">
+            <div id="feedback-container" class="mt-4">
                  <p id="rationale-text" class="rationale text-center p-3 rounded-lg bg-orange-50 text-orange-800 border border-orange-200"></p>
                  
                  <div id="solution-placeholder" class="hidden mt-2 text-center p-3 rounded-lg bg-gray-200 text-gray-500 cursor-not-allowed">
@@ -129,12 +128,11 @@
                     <h4 class="font-bold text-center">💡 바른 대응</h4>
                     <p id="solution-text" class="mt-1 text-sm"></p>
                  </div>
+                 <!-- [변경] Next Button 위치 이동 -->
+                <div class="flex items-center justify-end mt-4">
+                    <button id="next-button" class="px-6 py-2 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition-colors hidden">다음 &rarr;</button>
+                </div>
             </div>
-        </div>
-
-        <!-- Next Button -->
-        <div class="flex items-center justify-end mt-6">
-            <button id="next-button" class="px-6 py-2 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition-colors hidden">다음 &rarr;</button>
         </div>
     </div>
     
@@ -476,6 +474,11 @@
         let shuffledQuizData = [];
         let typeCounts = {};
 
+        // === [ADD] 전역 상태 ===
+        const RESPONSES = [];    // [{questionId, quizType, designTargetBias, selectedType, correctTarget(0/1), rtMs}]
+        let questionStartTime = 0;
+        let participantMeta = {}; // 사전설문 메타 저장
+
         function initializeApp() {
             setupStartScreen();
             startContainer.classList.remove('hidden');
@@ -531,6 +534,9 @@
                 button.addEventListener('click', selectAnswer);
                 answerOptionsEl.appendChild(button);
             });
+
+            // 타이머 시작
+            questionStartTime = performance.now();
         }
 
         function resetState() {
@@ -552,6 +558,8 @@
             if (!selectedButton) return;
 
             const isAnswered = answerOptionsEl.dataset.answered === 'true';
+            const now = performance.now();
+
 
             if (!isAnswered) {
                 answerOptionsEl.dataset.answered = 'true';
@@ -560,6 +568,18 @@
                 typeCounts[selectedType]++;
 
                 const currentQuestion = shuffledQuizData[currentQuestionIndex];
+                const rtMs = Math.round(now - questionStartTime);
+
+                // 응답 로그 push
+                RESPONSES.push({
+                    questionId: currentQuestion.id,
+                    quizType: currentQuestion.quizType,
+                    designTargetBias: currentQuestion.designTargetBias,
+                    selectedType: selectedType,
+                    correctTarget: selectedType === currentQuestion.designTargetBias ? 1 : 0,
+                    rtMs: rtMs
+                });
+                
                 const statement = {
                     actor: actor,
                     verb: VERBS_BY_TYPE[selectedType],
@@ -574,7 +594,10 @@
                             }))
                         }
                     },
-                    result: { response: selectedButton.dataset.optionId },
+                    result: { 
+                        response: selectedButton.dataset.optionId,
+                        duration: `PT${(rtMs / 1000).toFixed(2)}S` 
+                    },
                     context: {
                         extensions: {
                             "http://example.com/xapi/extensions/bias-type": selectedType,
@@ -835,6 +858,12 @@
             const ageValue = document.querySelector('#pre-survey-age .selected')?.dataset.value;
 
             if (!competencyValue || !frequencyValue || !ageValue) return;
+            
+            participantMeta = {
+                competency: parseInt(competencyValue, 10),
+                frequency: frequencyValue,
+                ageGroup: ageValue
+            };
 
             const preSurveyStatement = {
                 actor: actor,
