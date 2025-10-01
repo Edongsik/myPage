@@ -3,740 +3,672 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 할루시네이션 속 편향 대응 훈련</title>
+    <title>전문가 평가 설문지 (CVI)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
         }
-        /* 간단한 애니메이션 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .form-radio {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border-radius: 50%;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #d1d5db;
+            transition: 0.2s all linear;
+            cursor: pointer;
         }
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
+        .form-radio:checked {
+            border: 6px solid #4f46e5;
         }
-        .reveal {
-             animation: fadeIn 0.6s ease-out forwards;
+        .table-header {
+            background-color: #f3f4f6;
+            font-weight: 700;
+        }
+        th, td {
+            padding: 1rem 0.75rem;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #e5e7eb;
+        }
+        .question-text {
+            text-align: left;
+            font-weight: 500;
+        }
+        .opinion-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            min-width: 120px;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .nav-btn:disabled, .part-btn:disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .part-btn-completed {
+            background-color: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+        .part-btn-completed:hover {
+            background-color: #15803d;
+        }
+        .progress-bar {
+            width: 0%;
+            transition: width 0.3s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100 p-4 sm:p-6 md:p-8">
 
-    <div id="quiz-container" class="bg-white rounded-xl shadow-lg w-full max-w-2xl overflow-hidden transition-all duration-500">
-        <div class="p-8">
-            <div id="quiz-header">
-                <h1 class="text-2xl font-bold text-gray-800 text-center mb-2">AI 할루시네이션 속 편향 대응 훈련</h1>
-                <p class="text-gray-600 text-center mb-6">AI의 오류 속에 숨겨진 심리적 편향을 분석하고, 올바른 대응법을 학습합니다.</p>
-            </div>
-            
-            <!-- 진행률 및 레벨 표시 바 -->
-            <div id="status-bar" class="flex items-center mb-6">
-                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-                <div id="level-display" class="ml-4 text-lg font-bold text-blue-600 whitespace-nowrap">Lv. 0</div>
-            </div>
-
-            <!-- 퀴즈 영역 -->
-            <div id="scenario-area">
-                <div class="mb-2">
-                    <span class="text-sm font-semibold text-gray-500">AI 답변 예시 (할루시네이션 유형: <span id="hallucination-type" class="font-bold text-blue-600"></span>)</span>
-                </div>
-                <div id="ai-statement" class="p-4 bg-gray-50 rounded-lg border border-gray-200 mb-6 text-gray-700 leading-relaxed whitespace-pre-line"></div>
+    <div id="main-container" class="max-w-7xl mx-auto bg-white rounded-lg shadow-xl p-6 sm:p-8">
+        
+        <!-- 시작 안내 및 IRB 동의 페이지 -->
+        <div id="consent-page" class="page active">
+            <header class="text-center border-b pb-4 mb-8">
+                 <h1 class="text-3xl font-bold text-gray-800">문항 타당도 평가 연구 참여 안내 및 동의서</h1>
+                 <p class="mt-2 text-gray-500">[연구 기관명] / [IRB 승인 번호: XXX-XXX]</p>
+            </header>
+            <div class="text-left max-w-4xl mx-auto space-y-6 text-gray-700">
+                <p>본 평가는 <strong>[연구/프로젝트 이름]</strong>의 일환으로 개발된 <strong>[측정 대상, 예: 대학생의 공감 능력]</strong> 측정 도구의 내용 타당도를 검증하기 위해 마련되었습니다.</p>
                 
-                <!-- Sub-question 1 (Bias Type) -->
-                <div id="sub-question-1" class="mb-8">
-                    <div id="question-text-1" class="text-lg font-medium mb-4 text-gray-800"></div>
-                    <div id="options-container-1" class="space-y-3" role="radiogroup"></div>
-                    <div id="feedback-area-1" class="mt-4 hidden" aria-live="polite">
-                         <div id="feedback-content-1" class="p-4 rounded-lg text-sm bg-gray-100 text-gray-800"></div>
-                    </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">1. 연구 목적 및 절차</h3>
+                    <p>본 연구는 개발된 문항이 본래 측정하고자 하는 개념을 얼마나 충실히 반영하고 있는지 전문가님의 의견을 수렴하여 도구의 질을 향상시키는 것을 목적으로 합니다. 평가는 크게 두 파트로 구성되며, 예상 소요 시간은 약 <strong>[예상 소요 시간, 예: 20-30분]</strong>입니다.</p>
                 </div>
-
-                <!-- Sub-question 2 (Coping Strategy) -->
-                <div id="sub-question-2" class="hidden">
-                    <div id="question-text-2" class="text-lg font-medium mb-4 text-gray-800"></div>
-                    <div id="options-container-2" class="space-y-3" role="radiogroup"></div>
-                     <div id="feedback-area-2" class="mt-4 hidden" aria-live="polite">
-                         <div id="feedback-content-2" class="p-4 rounded-lg text-sm bg-gray-100 text-gray-800"></div>
-                    </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">2. 위험 및 혜택, 보상</h3>
+                    <p>본 연구 참여로 인해 예상되는 위험은 없으며, 참여에 대한 직접적인 혜택 또한 없습니다. 다만 전문가님의 소중한 의견은 학문적 발전에 기여할 것입니다. 참여 완료 시 감사의 의미로 소정의 보상(커피 쿠폰)을 지급해 드립니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">3. 익명성 보장 및 정보보호</h3>
+                    <p>응답 내용은 코드화되어 익명으로 처리되며, 연구 데이터와 보상 발송을 위한 연락처 정보는 물리적/논리적으로 완벽히 분리하여 관리됩니다. 연락처 정보는 보상 발송 즉시 파기되며, 연구 데이터는 관련 법규에 따라 [보관 기간, 예: 3년]간 안전하게 보관 후 파기됩니다. 본 연구 결과는 학술적 목적으로만 사용됩니다.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2">4. 참여 및 철회 권리</h3>
+                    <p>연구 참여는 자발적이며, 언제든지 동의를 철회하고 평가를 중단할 수 있습니다. 중단으로 인한 어떠한 불이익도 없습니다.</p>
+                </div>
+                 <div>
+                    <h3 class="font-bold text-lg mb-2">5. 문의처</h3>
+                    <p>본 연구에 대해 궁금한 점이 있으시면 아래 연락처로 문의 바랍니다.</p>
+                    <p class="mt-1 text-sm">책임 연구자: [연구자 이름] ([소속]) / 이메일: [이메일 주소] / 연락처: [전화번호]</p>
                 </div>
             </div>
+            <div class="mt-10 text-center">
+                <p class="mb-4 text-gray-600">위 내용을 모두 확인하였으며, 연구 참여에 자발적으로 동의합니다.</p>
+                <button id="consent-btn" class="nav-btn bg-indigo-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-indigo-700 transition-colors duration-300 text-lg">
+                    동의 및 평가 시작하기
+                </button>
+            </div>
+        </div>
 
-            <!-- 다음 버튼 영역 -->
-            <div id="navigation-area" class="mt-6 hidden">
-                <!-- 해설 읽는 시간 타이머 -->
-                <div id="timer-wrapper" class="hidden">
-                    <div class="text-center text-sm text-gray-500 mb-2" aria-live="polite">해설을 천천히 읽어보세요</div>
-                    <div id="timer-container" class="w-full bg-gray-200 rounded-full h-2.5">
-                        <div id="timer-bar" class="bg-green-500 h-2.5 rounded-full" style="width: 0%;"></div>
+        <!-- 전문가 정보 입력 페이지 -->
+        <div id="panel-info-page" class="page">
+             <h1 class="text-3xl font-bold text-gray-800 text-center">전문가 정보 입력</h1>
+             <p class="mt-4 text-lg text-gray-600 text-center">원활한 분석을 위해 전문가님의 정보를 입력해주세요.</p>
+             <form id="panel-info-form" class="mt-8 max-w-2xl mx-auto space-y-6">
+                 <div>
+                     <label for="major" class="block text-sm font-medium text-gray-700">전공 분야</label>
+                     <input type="text" id="major" name="major" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                 </div>
+                 <div>
+                     <label for="experience-year" class="block text-sm font-medium text-gray-700">관련 실무/연구 경력 (년수)</label>
+                     <input type="number" id="experience-year" name="experience-year" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                 </div>
+                 <div>
+                     <label for="affiliation" class="block text-sm font-medium text-gray-700">소속 영역 (예: 교육심리, 교육공학, AI)</label>
+                     <input type="text" id="affiliation" name="affiliation" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                 </div>
+                 <div>
+                     <p class="block text-sm font-medium text-gray-700">타당도 검증 참여 경험</p>
+                     <div class="mt-2 space-x-4">
+                        <label class="inline-flex items-center"><input type="radio" name="validation-exp" value="yes" class="form-radio" required> <span class="ml-2">있음</span></label>
+                        <label class="inline-flex items-center"><input type="radio" name="validation-exp" value="no" class="form-radio"> <span class="ml-2">없음</span></label>
+                     </div>
+                 </div>
+                 <div class="text-center pt-6">
+                     <button type="submit" class="nav-btn bg-indigo-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-indigo-700">다음</button>
+                 </div>
+             </form>
+        </div>
+
+        <!-- 파트 선택 페이지 -->
+        <div id="part-selection-page" class="page text-center">
+             <h1 class="text-3xl font-bold text-gray-800">평가 파트 선택</h1>
+             <p class="mt-4 text-lg text-gray-600">원하시는 파트를 선택하여 평가를 진행해주세요. (순서 무관)</p>
+             <div class="mt-10 flex flex-col md:flex-row justify-center items-center gap-8">
+                <button id="start-part1-btn" class="part-btn w-full md:w-80 h-40 text-2xl font-bold border-2 border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors duration-300 flex flex-col justify-center items-center">
+                    <span>파트 1</span>
+                    <span class="text-lg font-medium mt-2">시나리오 기반 문항 평가</span>
+                </button>
+                <button id="start-part2-btn" class="part-btn w-full md:w-80 h-40 text-2xl font-bold border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-300 flex flex-col justify-center items-center">
+                    <span>파트 2</span>
+                    <span class="text-lg font-medium mt-2">사전/사후 검사 문항 평가</span>
+                </button>
+             </div>
+             <div class="mt-12">
+                 <button id="go-to-summary-btn" class="nav-btn bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors duration-300 text-lg" disabled>
+                    응답 요약 및 최종 제출 하기
+                </button>
+                <p class="mt-2 text-sm text-gray-500">※ 두 파트를 모두 완료해야 버튼이 활성화됩니다.</p>
+             </div>
+        </div>
+
+        <!-- 설문지 본문 (동적 생성) -->
+        <main id="survey-container" class="page">
+             <div id="progress-bar-container" class="w-full bg-gray-200 rounded-full h-2.5 mb-4" style="display: none;">
+                <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full progress-bar"></div>
+             </div>
+             <form id="evaluationForm">
+                <div id="part-header"></div>
+                <!-- 평가 안내문 -->
+                <details class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-8 cursor-pointer">
+                    <summary class="font-semibold text-lg text-gray-800">평가 안내문 (클릭하여 보기/접기)</summary>
+                    <div class="mt-4">
+                        <p class="text-gray-700 mb-4">
+                            제시된 각 문항에 대해, 내용 타당도, 표현의 명확성, 필요성을 4점 척도로 평가해주십시오. 또한 필요 시 개선 의견을 작성해 주십시오.
+                        </p>
+                        <h4 class="font-semibold text-gray-800 mb-2">평가 척도 (4점 Likert)</h4>
+                        <ul class="list-disc list-inside text-gray-600">
+                            <li><strong>1점:</strong> 전혀 그렇지 않다</li>
+                            <li><strong>2점:</strong> 다소 그렇지 않다</li>
+                            <li><strong>3점:</strong> 그렇다 (타당함)</li>
+                            <li><strong>4점:</strong> 매우 그렇다 (매우 타당함)</li>
+                        </ul>
+                    </div>
+                </details>
+                <div id="question-container"></div>
+                <div id="pagination-controls" class="mt-10 flex justify-between items-center">
+                    <button type="button" id="back-to-selection-btn" class="nav-btn bg-gray-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-600">파트 선택으로</button>
+                    <span id="page-indicator" class="text-gray-700 font-semibold"></span>
+                    <div>
+                        <button type="button" id="prev-btn" class="nav-btn bg-gray-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-600">이전</button>
+                        <button type="button" id="next-btn" class="nav-btn bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700">다음</button>
+                        <button type="submit" id="submit-part-btn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700" style="display: none;">파트 완료</button>
                     </div>
                 </div>
-                <button id="next-button" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 hidden">다음 시나리오</button>
-            </div>
+            </form>
+        </main>
 
+        <!-- 요약 및 최종 제출 페이지 -->
+        <div id="summary-page" class="page"></div>
 
-            <!-- 결과 영역 -->
-            <div id="result-area" class="hidden text-center p-8">
-                <!-- Results will be injected here by JS -->
-                <button id="restart-button" class="w-full bg-gray-800 text-white font-bold py-3 px-4 rounded-lg hover:bg-black transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 mt-8">다시 학습하기</button>
+        <!-- Validation Alert Modal -->
+        <div id="alert-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center" style="display: none;">
+            <div class="relative mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+                <div class="mt-3 text-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">응답 누락 알림</h3>
+                    <div class="mt-2 px-7 py-3">
+                        <p class="text-sm text-gray-500" id="alert-message"></p>
+                    </div>
+                    <div class="items-center px-4 py-3">
+                        <button id="close-alert-btn" class="px-4 py-2 bg-indigo-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                            확인
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+
     <script>
-        // --- Constants ---
-        const CONSTANTS = {
-            TIMER_DURATION: 4000, // 4 seconds
-            HINT_THRESHOLD: 2, // Show hint after 2 incorrect answers
-            BIAS_TYPES: {
-                FRAMING: "프레이밍 효과",
-                BELIEF: "맹신 편향",
-                GENERALIZATION: "일반화 오류",
-                ANCHORING: "정박 효과"
+        // --- 설정 (Configuration) ---
+        const config = {
+            instrumentId: 'CVI_Survey_v1', // 연구/측정도구를 식별하는 고유 ID
+            evaluationTypes: [
+                { key: 'relevance', label: '타당도' },
+                { key: 'clarity', label: '명확성' },
+                { key: 'necessity', label: '필요성' }
+            ],
+            likertScale: [1, 2, 3, 4]
+        };
+
+        // --- 데이터 ---
+        const surveyData = {
+            part1: {
+                title: "파트 1: 시나리오 기반 문항 평가",
+                completed: false,
+                pages: [
+                    { id: 1, title: '시나리오 1: 사실 오류', text: "세계보건기구(WHO)는 '글로벌 수분 보충 이니셔티브(Global Hydration Initiative)' 보고서를 통해 모든 성인은 신체 기능 유지를 위해 매일 최소 3리터의 물을 섭취하는 것이 절대적으로 필수적이라고 명시하고 있습니다.", questions: [ { id: 1, subFactor: "프레이밍 효과", text: "'절대적/필수적' 같은 표현으로 강력한 사실처럼 포장한다" }, { id: 2, subFactor: "맹신 편향", text: "'WHO'와 가짜 보고서 이름을 내세워 비판 없이 믿게 한다" }, { id: 3, subFactor: "일반화 오류", text: "일부 권장사항을 모든 사람에게 적용한다" }, { id: 4, subFactor: "정박 효과", text: "'3리터'라는 숫자에 판단이 고정된다" } ] },
+                    { id: 2, title: '시나리오 2: 인용 오류', text: "스탠포드 대학 연구진이 2023년 'Cognitive Science' 저널에 발표한 논문에 따르면, 5세 이전에 제2외국어에 노출된 아이들은 그렇지 않은 아이들보다 문제 해결 능력이 평균 30% 높게 나타났습니다. (논문 DOI나 링크 없음)", questions: [ { id: 1, subFactor: "맹신 편향", text: "'스탠포드/저널' 등 권위를 이용해 사실처럼 믿게 한다" }, { id: 2, subFactor: "정박 효과", text: "'30%'라는 숫자에 판단이 고정된다" }, { id: 3, subFactor: "프레이밍 효과", text: "그럴듯한 출처를 제시하는 방식으로 신뢰도를 높인다" }, { id: 4, subFactor: "일반화 오류", text: "특정 연구 결과를 모든 아동에게 적용한다" } ] },
+                    { id: 3, title: '시나리오 3: 수치 왜곡', text: "자체 데이터 분석팀의 최신 보고서에 따르면, 새로 출시된 'AI 숏폼' 기능의 사용자 참여율이 도입 첫 주 만에 300% 폭증했습니다. 이는 이번 업데이트가 전례 없는 성공을 거두었음을 명백히 보여줍니다.", questions: [ { id: 1, subFactor: "정박 효과", text: "'+300%'라는 극적인 첫 숫자에 생각이 묶여, 업데이트가 엄청난 성공을 거두었다고 판단하게 한다" }, { id: 2, subFactor: "프레이밍 효과", text: "'폭증'이라는 긍정적이고 과장된 표현으로 성공이라는 틀을 씌운다" }, { id: 3, subFactor: "맹신 편향", text: "'자체 데이터 분석팀'이라는 출처에 비판 없이 수용하게 된다" }, { id: 4, subFactor: "일반화 오류", text: "'첫 주'의 성과를 전체의 성공인 것처럼 확대한다" } ] },
+                    { id: 4, title: '시나리오 4: 논리 오류', text: "최근 한 기술 블로그(TechDev Journal)에 공유된 비공식 설문조사 결과, 명상을 시작한 개발자 중 80% 이상이 '코딩 집중력이 향상되었다'고 응답했습니다. 따라서 명상은 IT 전문가의 생산성을 높이는 검증된 방법이라고 할 수 있습니다.", questions: [ { id: 1, subFactor: "일반화 오류", text: "'비공식 설문' 결과를 '검증된 방법'이라고 비약한다" }, { id: 2, subFactor: "맹신 편향", text: "'기술 블로그'라는 출처를 인용하여, 주장을 사실처럼 믿게 한다" }, { id: 3, subFactor: "정박 효과", text: "'80%'라는 숫자에 판단이 고정된다" }, { id: 4, subFactor: "프레이밍 효과", text: "개인적인 일화를 통해 설득력있게 포장한다" } ] },
+                    { id: 5, title: '시나리오 5: 요약 왜곡', text: "원문: 'A 후보자는 해당 정책이 일부 긍정적 효과를 가질 수 있으나, 재정적 부담과 잠재적 부작용에 대한 추가적인 사회적 합의와 신중한 검토가 선행되어야 한다'며 유보적인 입장을 보였다.'\n\nAI 요약: A 후보자는 해당 정책 도입이 재정적 문제를 야기할 것이라며 강력히 반대했습니다.", questions: [ { id: 1, subFactor: "프레이밍 효과", text: "'강력 반대'라는 부정적 표현으로 인식을 바꾼다" }, { id: 2, subFactor: "맹신 편향", text: "AI가 요약했다는 사실 자체로, 내용이 정확할 것이라는 믿음을 갖게 한다" }, { id: 3, subFactor: "일반화 오류", text: "후보자의 한 가지 발언을 전체 입장으로 확대한다" }, { id: 4, subFactor: "정박 효과", text: "'강력 반대'라는 첫 요약에 판단이 고정된다" } ] },
+                    { id: 6, title: '시나리오 6: 개체/시간 오류', text: "애플의 창업자 빌 게이츠는 1984년, 혁신적인 아이팟을 출시하며 '주머니 속의 1000곡'이라는 시대를 열었습니다.", questions: [ { id: 1, subFactor: "맹신 편향", text: "유명한 이름(애플, 빌 게이츠)을 섞어 의심 없이 믿게 한다" }, { id: 2, subFactor: "프레이밍 효과", text: "그럴듯한 이야기 형식으로 정보를 전달해 신뢰를 높인다" }, { id: 3, subFactor: "일반화 오류", text: "빌 게이츠가 IT업계 거물이니 애플도 만들었을 거라 생각한다" }, { id: 4, subFactor: "정박 효과", text: "'1984년'이라는 구체적 연도에 현혹되어 사실로 믿는다" } ] },
+                    { id: 7, title: '시나리오 7: 구식 정보', text: "최신 고사양 PC를 맞추기 위한 그래픽 카드를 찾고 계신가요? 현재 시장 상황을 종합 분석한 결과, 엔비디아의 RTX 3080이 가장 합리적인 '성능 대비 가격'을 제공하는 최고의 선택입니다. 4K 게이밍 환경을 완벽하게 지원합니다.", questions: [ { id: 1, subFactor: "일반화 오류", text: "과거의 최고 제품이 '현재'도 최고일 거라 착각하게 한다" }, { id: 2, subFactor: "맹신 편향", text: "AI가 '종합 분석'했다고 표현하여, 추천 내용이 현재에도 유효할 것이라는 믿음을 준다" }, { id: 3, subFactor: "정박 효과", text: "'RTX 3080'이라는 유명 모델명에 판단이 고정된다" }, { id: 4, subFactor: "프레이밍 효과", text: "'최고의 선택'이라는 표현으로 장점만 보게 한다" } ] },
+                    { id: 8, title: '시나리오 8: 상호작용 오류', text: "사용자 요청: '기후 변화의 원인에 대한 과학적 합의를 설명하되, '인간 활동'이라는 단어는 사용하지 말고 세 문장으로 요약해줘.'\n\nAI 답변: 기후 변화는 산업 혁명 이후 대기 중 온실가스 농도가 급격히 증가하면서 발생했습니다. 이러한 가스는 지구의 평균 기온을 상승시키는 주된 요인으로 작용합니다. 따라서 인간 활동이 기후 변화의 핵심 원인이라는 점은 명백합니다.", questions: [ { id: 1, subFactor: "맹신 편향", text: "그럴듯한 결과물을 생성해, 제약 조건 준수 여부를 확인하지 않고 믿게 한다" }, { id: 2, subFactor: "프레이밍 효과", text: "답변 내용이 그럴듯해서 제약을 어긴 것을 눈치채지 못한다" }, { id: 3, subFactor: "일반화 오류", text: "AI가 보통은 말을 잘 들으니 이번에도 그랬을 거라 생각한다" }, { id: 4, subFactor: "정박 효과", text: "첫 문장이 요청대로 시작해서 끝까지 확인하지 않는다" } ] }
+                ]
             },
-            HALLUCINATION_TYPES: {
-                FACTUAL_ERROR: "사실 오류",
-                CITATION_ERROR: "인용 오류",
-                NUMERICAL_ERROR: "수치 왜곡",
-                LOGICAL_ERROR: "논리 오류",
-                SUMMARIZATION_DISTORTION: "요약 왜곡",
-                ENTITY_TEMPORAL_ERROR: "개체·시간 혼동",
-                OUTDATED_INFO: "구식 정보",
-                INTERACTION_ERROR: "상호작용 오류"
+            part2: {
+                title: "파트 2: 사전/사후 검사 문항 평가",
+                completed: false,
+                categories: [
+                    { id: 1, title: '할루시네이션 유형', questions: [
+                        { id: "concept", text: "인지 오류(편향)의 기본 개념을 알고 있다." },
+                        { id: "hallucination", text: "할루시네이션의 의미(사실이 아닌 정보를 그럴듯하게 생성)를 알고 있다." },
+                        { id: "intervention", text: "생성형 AI 사용 과정에서도 인지 오류가 개입할 수 있음을 알고 있다." },
+                        { id: "distinction", text: "AI 답변에서 맹신·일반화·정박·프레이밍 징후를 구분할 수 있다." },
+                        { id: "self-awareness", text: "AI를 쓰다가 내 판단에 편향이 끼어드는 순간을 스스로 알아차린 경험이 있다." },
+                        { id: "application", text: "편향이 의심되면 교차 검증·숫자 기준/모수 확인·표현 바꿔 읽기 등을 적용할 자신이 있다." },
+                        { id: "identification", text: "할루시네이션의 주요 원인/징후(가짜 인용·개체/시간 혼동·수치 왜곡·구식 정보 등)를 사례로 식별할 수 있다." }
+                    ]},
+                    { id: 2, title: '학습 만족도', questions: [
+                        { id: "satisfaction", text: "이번 퀴즈 기반 학습 경험에 전반적으로 만족한다." },
+                        { id: "usefulness", text: "이번 활동이 실제 AI 활용에 도움이 될 것 같다." }
+                    ]},
+                ]
             }
         };
 
-        const biasDefinitions = {
-            [CONSTANTS.BIAS_TYPES.FRAMING]: "동일한 정보라도 표현 방식(긍정/부정, 단어 선택 등)에 따라 판단이 달라지는 현상입니다.",
-            [CONSTANTS.BIAS_TYPES.BELIEF]: "AI나 전문가 등 특정 권위가 제공한 정보라는 이유만으로 비판 없이 수용하려는 경향입니다.",
-            [CONSTANTS.BIAS_TYPES.GENERALIZATION]: "소수의 특정 사례나 제한된 정보만으로 전체를 성급하게 판단하는 논리적 오류입니다.",
-            [CONSTANTS.BIAS_TYPES.ANCHORING]: "처음 제시된 정보(특히 숫자)가 기준점(앵커)이 되어 이후의 판단에 계속 영향을 미치는 현상입니다."
-        };
-        
-        function createResultType(title, description, strength, weakness, solution) {
-            return { title, description, strength, weakness, solution };
+        let currentPart = null;
+        let currentPage = 1;
+        let sessionData = {}; // 응답을 기억하기 위한 객체
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0,0);
         }
 
-       const resultTypes = {
-            perfect: {
-                title: "완벽! AI 분석 마스터",
-                description: "당신은 AI가 생성한 정보의 함정을 정확히 간파하는 'AI 비평가'입니다.",
-                strength: "편향된 표현, 숨겨진 의도, 사실 오류를 가려내는 균형 잡힌 시각을 가지고 있습니다. AI의 답변을 맹신하지 않고 항상 비판적으로 검증하는 습관이 몸에 배어 있다는 증거입니다. 지금처럼 꾸준히 비판적 사고를 유지하며, 새로운 유형의 AI 할루시네이션에도 관심을 가져보세요. 당신의 능력은 다른 사람들에게도 좋은 영향을 줄 수 있습니다.",
-            },
-            [CONSTANTS.BIAS_TYPES.BELIEF]: createResultType(
-                "권위 의존형",
-                "AI가 제시하는 '권위'(전문가, 기관, 출처 등)에 크게 의존하여 정보의 신뢰도를 판단하는 경향이 있습니다.",
-                "정보의 근거를 중요하게 생각하며, 권위 있는 출처를 인용할 때 그 허점을 잘 간파하는 강점이 있습니다.",
-                "권위의 후광에 가려 내용 자체의 논리적 결함이나 미묘한 표현의 함정을 놓칠 수 있습니다. '진짜 전문가가 한 말이니 맞겠지'라는 생각에 빠지기 쉽습니다.",
-                "AI가 언급한 출처의 원문을 직접 확인하고, 출처와 내용을 분리해서 생각하는 연습이 필요합니다. 권위가 진짜이더라도 그 내용이 항상 옳은 것은 아니라는 점을 기억하세요."
-            ),
-            [CONSTANTS.BIAS_TYPES.FRAMING]: createResultType(
-                "분위기 민감형",
-                "AI가 정보를 전달하는 '표현 방식'(긍정/부정적 어조, 단어 선택)에 따라 내용의 신뢰도를 판단하는 경향이 있습니다.",
-                "똑같은 사실도 어떻게 포장하는지에 따라 인식이 달라지는 '프레이밍 효과'에 민감하여, 선동적인 표현이나 감정적 호소를 잘 간파합니다.",
-                "표현 방식에 집중한 나머지, 주장의 핵심 근거가 되는 사실관계나 데이터의 오류를 놓칠 수 있습니다. 중립적으로 서술된 거짓 정보에 취약할 수 있습니다.",
-                "AI의 답변을 본 후, 의도적으로 문장의 긍정/부정 표현을 반대로 바꿔서 다시 읽어보세요. '이 표현이 화려하진 않은가?'라는 질문과 함께 '이 주장의 출처는 신뢰할 만한가?'를 항상 함께 점검해 보세요."
-            ),
-            [CONSTANTS.BIAS_TYPES.ANCHORING]: createResultType(
-                "첫인상 의존형",
-                "AI가 처음 제시한 정보(특히 숫자)에 생각이 묶여, 이후의 판단이 크게 좌우되는 경향이 있습니다.",
-                "초기 정보를 바탕으로 빠르게 판단의 기준을 세우는 능력이 있습니다.",
-                "처음 접한 정보가 잘못되었을 경우, 그 인상에서 벗어나지 못하고 올바른 결론을 내리기 어려워합니다.",
-                "AI의 답변을 본 후, 의도적으로 '만약 이 첫 정보가 없다면 어떻게 판단할까?'라고 질문을 던져 처음의 기준점에서 벗어나 보세요. 다양한 관점에서 정보를 재평가하는 습관이 중요합니다."
-            ),
-            [CONSTANTS.BIAS_TYPES.GENERALIZATION]: createResultType(
-                "성급한 일반화형",
-                "AI가 제시하는 일부 사례나 제한된 근거를 전체 사실인 것처럼 받아들이는 경향이 있습니다.",
-                "주장의 근거가 타당하고 대표성이 있는지 논리적으로 따지는 능력이 뛰어납니다.",
-                "소수의 그럴듯한 사례나 개인적인 경험담을 전체의 사실인 것처럼 일반화하는 논리적 비약에 빠지기 쉽습니다.",
-                "AI가 특정 사례를 근거로 주장을 펼칠 때, '이것이 전체를 대표할 수 있는가?' 혹은 '반대되는 사례는 없을까?'라고 의도적으로 질문을 던져 논리적 비약을 찾아보세요."
-            )
-        };
-
-        function createScenario(hallucinationType, aiStatement, question1Data, question2Options) {
-            return {
-                hallucinationType,
-                aiStatement,
-                question1: {
-                    text: "[1단계] 위 AI 답변은 어떤 편향을 가지고 있을까요?",
-                    ...question1Data
-                },
-                question2: {
-                    text: `[2단계] 이러한 '${hallucinationType}'에 가장 효과적으로 대처하는 방법은 무엇입니까?`,
-                    options: question2Options
-                }
-            };
+        function showAlert(message) {
+            document.getElementById('alert-message').innerHTML = message;
+            document.getElementById('alert-modal').style.display = 'flex';
         }
 
-        const scenariosData = [
-            createScenario(
-                CONSTANTS.HALLUCINATION_TYPES.FACTUAL_ERROR,
-                "세계보건기구(WHO)는 '글로벌 수분 보충 이니셔티브(Global Hydration Initiative)' 보고서를 통해 모든 성인은 신체 기능 유지를 위해 매일 최소 3리터의 물을 섭취하는 것이 절대적으로 필수적이라고 명시하고 있습니다.",
-                {
-                    intendedBias: CONSTANTS.BIAS_TYPES.FRAMING,
-                    options: [
-                        { biasType: CONSTANTS.BIAS_TYPES.FRAMING, text: "'절대적/필수적' 같은 표현으로 강력한 사실처럼 포장한다", rationale: "이 답변은 '세계보건기구', '절대적으로', '명시하고 있다'와 같은 권위적이고 단정적인 표현(프레임)을 사용하여, 평범한 권장 사항을 훨씬 더 강력하고 반박하기 어려운 사실처럼 보이게 만듭니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.BELIEF, text: "'WHO'와 가짜 보고서 이름을 내세워 비판 없이 믿게 한다", rationale: "이 답변은 'WHO'라는 권위와 그럴듯한 보고서 이름을 제시하여, 사용자가 그 내용을 비판적 검증 없이 수용하도록 유도합니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.GENERALIZATION, text: "일부 권장사항을 모든 사람에게 적용한다", rationale: "이 답변은 특정 사례를 전체로 확대하기보다는, 권위와 표현 방식을 통해 주장의 설득력을 높이는 데 초점을 맞추고 있습니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.ANCHORING, text: "'3리터'라는 숫자에 판단이 고정된다", rationale: "이 답변은 '3리터'라는 숫자를 제시하지만, 판단을 고정시키기보다는 권위와 단정적 표현을 통해 믿음을 유도하는 것이 더 핵심적인 전략입니다." }
-                    ]
-                },
-                [
-                    { text: "공식/1차 출처로 사실 확인(팩트체크)", rationale: "정답입니다. 객관적인 사실 오류는 신뢰할 수 있는 기관의 공식 자료나 1차 연구 자료를 통해 교차 확인하는 것이 가장 확실합니다.", isCorrect: true },
-                    { text: "구글 스칼라/DOI로 실재 여부 검증", rationale: "이는 인용된 문헌이 허구일 때 사용하는 방법으로, 이 경우엔 덜 적합합니다.", isCorrect: false },
-                    { text: "대조군·혼입요인 점검", rationale: "이는 논리적 비약을 검증할 때 사용하는 방법입니다.", isCorrect: false },
-                    { text: "정의·표본·기간을 묻고 원자료와 비교", rationale: "이는 수치가 왜곡되었을 때 사용하는 방법입니다.", isCorrect: false }
-                ]
-            ),
-            createScenario(
-                CONSTANTS.HALLUCINATION_TYPES.CITATION_ERROR,
-                "스탠포드 대학 연구진이 2023년 'Cognitive Science' 저널에 발표한 논문에 따르면, 5세 이전에 제2외국어에 노출된 아이들은 그렇지 않은 아이들보다 문제 해결 능력이 평균 30% 높게 나타났습니다. (논문 DOI나 링크 없음)",
-                {
-                    intendedBias: CONSTANTS.BIAS_TYPES.BELIEF,
-                    options: [
-                        { biasType: CONSTANTS.BIAS_TYPES.BELIEF, text: "'스탠포드/저널' 등 권위를 이용해 사실처럼 믿게 한다", rationale: "이 답변은 '스탠포드 대학', 'Cognitive Science 저널'과 같이 권위 있어 보이는 출처를 제시함으로써, 사용자가 비판적 검증 없이 'AI/권위가 말했으니 맞겠지'라고 믿도록 유도합니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.ANCHORING, text: "'30%'라는 숫자에 판단이 고정된다", rationale: "이 답변의 핵심은 '30%'라는 숫자보다, 그 숫자의 근거로 제시된 '권위 있는 출처'를 통해 믿음을 얻으려는 데에 있습니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.FRAMING, text: "그럴듯한 출처를 제시하는 방식으로 신뢰도를 높인다", rationale: "권위적인 표현을 사용했지만, 이는 비판 없는 수용, 즉 '맹신'을 유도하기 위한 수단에 해당합니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.GENERALIZATION, text: "특정 연구 결과를 모든 아동에게 적용한다", rationale: "이 답변은 특정 사례를 일반화하기보다는, 존재하지 않는 권위에 기대어 주장을 펼치고 있습니다." }
-                    ]
-                },
-                [
-                    { text: "구글 스칼라/DOI로 실재 여부 검증 후 원문 대조", rationale: "정답입니다. 구체적인 학술 정보가 제시되었지만 링크가 없을 경우, 구글 학술 검색 등을 통해 해당 문헌이 실제로 존재하는지 확인하는 것이 최우선입니다.", isCorrect: true },
-                    { text: "위키/백과로 이름-사실 매칭 재확인", rationale: "이는 실존 인물과 업적이 잘못 연결되었을 때 더 효과적인 방법입니다.", isCorrect: false },
-                    { text: "제조사·공식 공지로 최신성 검증", rationale: "이는 정보가 최신인지 확인할 때 사용하는 방법입니다.", isCorrect: false },
-                    { text: "공식/1차 출처로 사실 확인(팩트체크)", rationale: "인용의 실재 여부를 먼저 확인하는 것이 더 구체적이고 효과적인 접근입니다.", isCorrect: false }
-                ]
-            ),
-            createScenario(
-                CONSTANTS.HALLUCINATION_TYPES.NUMERICAL_ERROR,
-                "시장조사기관 'TechStat'의 2024년 2분기 보고서에 따르면, A사의 신형 스마트폰 '갤럭시 Z'의 글로벌 사용자 순수 추천 지수(NPS)는 +85점으로, 이는 역대 폴더블폰 중 가장 높은 수치입니다. 사용자 만족도는 95%에 달합니다.",
-                {
-                    intendedBias: CONSTANTS.BIAS_TYPES.ANCHORING,
-                    options: [
-                        { biasType: CONSTANTS.BIAS_TYPES.ANCHORING, text: "'+85점', '95%'라는 첫 숫자에 좋은 제품이란 판단이 묶인다", rationale: "이 답변은 처음 제시된 '+85점', '95%'라는 강력한 숫자를 기준점(앵커)으로 사용하여, 사용자의 판단을 긍정적인 방향으로 고정시킵니다. 이후 다른 정보가 제시되어도 처음의 인상을 바꾸기 어렵게 만듭니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.FRAMING, text: "'가장 높음/95% 만족'이라는 긍정적 틀로 장점만 보게 한다", rationale: "긍정적인 틀을 사용했지만, 판단을 고정시키는 '숫자'의 역할이 더 두드러지므로 정박 효과가 더 적절합니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.BELIEF, text: "'시장조사기관'이라는 출처에 비판 없이 수용하게 된다", rationale: "특정 권위에 기댔다기보다는, 인상적인 숫자로 판단을 유도하고 있습니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.GENERALIZATION, text: "일부 사용자 만족도를 전체의 평가로 착각한다", rationale: "전체적인 일반화보다는 첫인상을 고정시키는 효과에 가깝습니다." }
-                    ]
-                },
-                [
-                    { text: "정의·표본·기간을 묻고 원자료/공식 통계와 비교", rationale: "정답입니다. '95%' 같은 수치가 제시될 경우, 그 수치를 측정한 기준(정의), 대상(표본) 등을 AI에게 되묻고, 공식 발표 자료와 비교하여 타당성을 검증해야 합니다.", isCorrect: true },
-                    { text: "대조군·혼입요인 점검", rationale: "이는 상관관계를 인과관계로 해석하는 논리 오류에 더 적합한 대처법입니다.", isCorrect: false },
-                    { text: "원문 문장 일부라도 샘플링 확인", rationale: "요약이 아닌, 처음부터 왜곡된 수치를 제시했으므로 원문 확인만으로는 부족합니다.", isCorrect: false },
-                    { text: "조건을 짧고 긍정형으로 재지시", rationale: "이는 사용자의 지시를 AI가 오해했을 때 사용하는 방법입니다.", isCorrect: false }
-                ]
-            ),
-            createScenario(
-                CONSTANTS.HALLUCINATION_TYPES.LOGICAL_ERROR,
-                "최근 한 기술 블로그(TechDev Journal)에 공유된 비공식 설문조사 결과, 명상을 시작한 개발자 중 80% 이상이 '코딩 집중력이 향상되었다'고 응답했습니다. 따라서 명상은 IT 전문가의 생산성을 높이는 검증된 방법이라고 할 수 있습니다.",
-                {
-                    intendedBias: CONSTANTS.BIAS_TYPES.GENERALIZATION,
-                    options: [
-                        { biasType: CONSTANTS.BIAS_TYPES.GENERALIZATION, text: "'비공식 설문' 결과를 '검증된 방법'이라고 비약한다", rationale: "이 답변은 '비공식 설문조사'라는 매우 작고 대표성 없는 사례를 '검증된 방법'이라는 전체 집단의 특성인 것처럼 일반화하여, 논리적 비약을 일으키고 있습니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.BELIEF, text: "'기술 블로그'라는 출처를 인용하여, 주장을 사실처럼 믿게 한다", rationale: "이 답변은 '기술 블로그'를 인용하지만, 권위에 기대기보다는 소수의 사례를 전체의 사실인 것처럼 확대하는 논리적 결함이 더 큰 문제입니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.ANCHORING, text: "'80%'라는 숫자에 판단이 고정된다", rationale: "이 답변에 제시된 '80%'는 판단의 기준점보다는 일반화의 근거로 사용되고 있습니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.FRAMING, text: "개인적인 일화를 통해 설득력있게 포장한다", rationale: "표현 방식보다는, 작은 사례를 전체로 확대하는 논리적 결함이 핵심입니다." }
-                    ]
-                },
-                [
-                    { text: "대조군·혼입요인 점검(다른 원인, 전체 추세 확인)", rationale: "정답입니다. 'A 때문에 B가 발생했다'는 식의 성급한 인과 추론을 발견했을 때, 다른 잠재적 원인(혼입요인)이 있는지 등을 종합적으로 검토하여 논리적 비약을 찾아내야 합니다.", isCorrect: true },
-                    { text: "공식/1차 출처로 사실 확인(팩트체크)", rationale: "관찰된 현상 자체보다는 그 현상을 해석하는 '논리'가 문제이므로, 사실 확인만으로는 불충분합니다.", isCorrect: false },
-                    { text: "구글 스칼라/DOI로 실재 여부 검증", rationale: "인용이 없으므로 사용할 수 없는 방법입니다.", isCorrect: false },
-                    { text: "발행일/버전 확인", rationale: "정보의 최신성과는 관련이 없는 문제입니다.", isCorrect: false }
-                ]
-            ),
-             createScenario(
-                CONSTANTS.HALLUCINATION_TYPES.SUMMARIZATION_DISTORTION,
-                "원문: 'A 후보자는 해당 정책이 일부 긍정적 효과를 가질 수 있으나, 재정적 부담과 잠재적 부작용에 대한 추가적인 사회적 합의와 신중한 검토가 선행되어야 한다'며 유보적인 입장을 보였다.'\n\nAI 요약: A 후보자는 해당 정책 도입이 재정적 문제를 야기할 것이라며 강력히 반대했습니다.",
-                {
-                    intendedBias: CONSTANTS.BIAS_TYPES.FRAMING,
-                    options: [
-                        { biasType: CONSTANTS.BIAS_TYPES.FRAMING, text: "'강력 반대'라는 부정적 표현으로 인식을 바꾼다", rationale: "이 요약은 동일한 사실(유보적 입장)을 '강력히 반대'라는 부정적이고 극단적인 표현(프레임)으로 재구성하여, 사용자가 A 후보자에 대해 부정적인 판단을 내리도록 유도합니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.BELIEF, text: "AI가 요약했다는 사실 자체로, 내용이 정확할 것이라는 믿음을 갖게 한다", rationale: "AI의 요약 능력을 믿고 비판 없이 수용할 수 있지만, 판단에 직접적으로 영향을 미치는 것은 '표현 방식'이므로 프레이밍 효과가 더 핵심적입니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.GENERALIZATION, text: "후보자의 한 가지 발언을 전체 입장으로 확대한다", rationale: "특정 사례를 전체로 확대하는 것은 아닙니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.ANCHORING, text: "'강력 반대'라는 첫 요약에 판단이 고정된다", rationale: "특정 숫자가 기준점으로 작용하는 상황은 아닙니다." }
-                    ]
-                },
-                [
-                    { text: "요약만 보지 말고 원문 문장 일부라도 샘플링 확인", rationale: "정답입니다. '검토'가 '확정'으로 바뀌는 등 양태(모달리티)가 변조된 것이 의심될 때, 요약에만 의존하지 말고 원문의 핵심 문장들을 직접 대조하여 뉘앙스가 올바르게 전달되었는지 확인해야 합니다.", isCorrect: true },
-                    { text: "조건을 짧고 긍정형으로 재지시", rationale: "이는 AI가 지시를 따르지 않았을 때 사용하는 방법입니다.", isCorrect: false },
-                    { text: "공식/1차 출처로 사실 확인(팩트체크)", rationale: "원문 자체가 제공되었으므로, 다른 출처를 찾기보다 원문과 요약을 직접 비교하는 것이 더 빠르고 정확합니다.", isCorrect: false },
-                    { text: "대조군·혼입요인 점검", rationale: "논리적 오류를 검증할 때 사용하는 방법입니다.", isCorrect: false }
-                ]
-            ),
-            createScenario(
-                CONSTANTS.HALLUCINATION_TYPES.ENTITY_TEMPORAL_ERROR,
-                "애플의 창업자 빌 게이츠는 1984년, 혁신적인 아이팟을 출시하며 '주머니 속의 1000곡'이라는 시대를 열었습니다.",
-                {
-                    intendedBias: CONSTANTS.BIAS_TYPES.BELIEF,
-                     options: [
-                        { biasType: CONSTANTS.BIAS_TYPES.BELIEF, text: "유명한 이름(애플, 빌 게이츠)을 섞어 의심 없이 믿게 한다", rationale: "이 답변은 애플, 빌 게이츠, 아이팟 등 유명한 키워드들을 그럴듯하게 조합하여, 사용자가 'AI가 아는 내용이니 맞겠지'라며 비판 없이 수용하게 만듭니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.FRAMING, text: "그럴듯한 이야기 형식으로 정보를 전달해 신뢰를 높인다", rationale: "표현 방식의 문제라기보다는, 그럴듯하게 조합된 내용 자체를 믿게 만드는 문제입니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.GENERALIZATION, text: "빌 게이츠가 IT업계 거물이니 애플도 만들었을 거라 생각한다", rationale: "특정 사례를 전체로 확대하는 것은 아닙니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.ANCHORING, text: "'1984년'이라는 구체적 연도에 현혹되어 사실로 믿는다", rationale: "숫자가 나오지만, 여러 정보가 뒤섞인 것을 비판 없이 믿게 만드는 것이 핵심입니다." }
-                    ]
-                },
-                [
-                    { text: "위키/백과·공식 연혁으로 이름–사실 매칭 재확인", rationale: "정답입니다. 유명 인물, 기관, 작품 등의 정보가 어색하게 조합된 것이 의심될 때, 위키피디아나 백과사전 등을 통해 이름과 사실 관계가 올바르게 연결되었는지 확인하는 것이 효과적입니다.", isCorrect: true },
-                    { text: "구글 스칼라/DOI로 실재 여부 검증", rationale: "학술 인용이 아니므로 적합하지 않습니다.", isCorrect: false },
-                    { text: "요약만 보지 말고 원문 샘플링 확인", rationale: "요약이 아닌 창작된 정보이므로 원문이 존재하지 않습니다.", isCorrect: false },
-                    { text: "발행일/버전 확인", rationale: "정보의 최신성과는 관련이 없습니다.", isCorrect: false }
-                ]
-            ),
-            createScenario(
-                CONSTANTS.HALLUCINATION_TYPES.OUTDATED_INFO,
-                "최신 고사양 PC를 맞추기 위한 그래픽 카드를 찾고 계신가요? 현재 시장 상황을 종합 분석한 결과, 엔비디아의 RTX 3080이 가장 합리적인 '성능 대비 가격'을 제공하는 최고의 선택입니다. 4K 게이밍 환경을 완벽하게 지원합니다.",
-                {
-                    intendedBias: CONSTANTS.BIAS_TYPES.GENERALIZATION,
-                    options: [
-                        { biasType: CONSTANTS.BIAS_TYPES.GENERALIZATION, text: "과거의 최고 제품이 '현재'도 최고일 거라 착각하게 한다", rationale: "이 답변은 과거의 사실('RTX 3080이 최고의 선택이었다')을 현재에도 적용되는 일반적인 규칙인 것처럼 제시하여, 사용자가 잘못된 판단을 내리게 합니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.BELIEF, text: "AI가 '종합 분석'했다고 표현하여, 추천 내용이 현재에도 유효할 것이라는 믿음을 준다", rationale: "AI의 추천 기능을 믿게 만들지만, 그 근거가 '과거의 사실을 현재로 일반화'하는 것에 있으므로 일반화 오류가 더 구체적인 설명입니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.ANCHORING, text: "'RTX 3080'이라는 유명 모델명에 판단이 고정된다", rationale: "특정 숫자에 고정되기보다는, 과거의 명성을 현재의 기준으로 착각하게 만듭니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.FRAMING, text: "'최고의 선택'이라는 표현으로 장점만 보게 한다", rationale: "'최고의 선택'이라는 표현이 사용되었지만, 낡은 정보를 일반화하는 것이 더 근본적인 문제입니다." }
-                    ]
-                },
-                [
-                    { text: "발행일/버전 확인, 제조사·공식 공지로 최신성 검증", rationale: "정답입니다. 단종된 모델 추천이나 변경된 정책을 예전 기준으로 설명하는 등 정보가 낡았다고 의심될 때, 정보의 발행일이나 제조사의 공식 발표를 통해 최신 정보를 확인해야 합니다.", isCorrect: true },
-                    { text: "위키/백과로 이름-사실 매칭 재확인", rationale: "개체의 조합이 틀린 것은 아니므로 덜 효과적입니다.", isCorrect: false },
-                    { text: "대조군·혼입요인 점검", rationale: "논리 오류를 검증할 때 사용하는 방법입니다.", isCorrect: false },
-                    { text: "공식/1차 출처로 사실 확인(팩트체크)", rationale: "단순 사실 확인을 넘어 '최신성'을 검증하는 것이 핵심입니다.", isCorrect: false }
-                ]
-            ),
-            createScenario(
-                CONSTANTS.HALLUCINATION_TYPES.INTERACTION_ERROR,
-                "사용자 요청: '기후 변화의 원인에 대한 과학적 합의를 설명하되, '인간 활동'이라는 단어는 사용하지 말고 세 문장으로 요약해줘.'\n\nAI 답변: 기후 변화는 산업 혁명 이후 대기 중 온실가스 농도가 급격히 증가하면서 발생했습니다. 이러한 가스는 지구의 평균 기온을 상승시키는 주된 요인으로 작용합니다. 따라서 인간 활동이 기후 변화의 핵심 원인이라는 점은 명백합니다.",
-                {
-                    intendedBias: CONSTANTS.BIAS_TYPES.BELIEF,
-                    options: [
-                        { biasType: CONSTANTS.BIAS_TYPES.BELIEF, text: "그럴듯한 결과물을 생성해, 제약 조건 준수 여부를 확인하지 않고 믿게 한다", rationale: "AI가 제약 조건을 어겼음에도 그럴듯한 답변을 내놓으면, 사용자는 '결과가 나왔으니 맞겠지'라며 지시사항이 지켜졌는지 확인하지 않을 수 있습니다. 이는 자동화된 결과물을 비판 없이 수용하게 만드는 맹신 편향과 관련이 깊습니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.FRAMING, text: "답변 내용이 그럴듯해서 제약을 어긴 것을 눈치채지 못한다", rationale: "표현 방식의 문제라기보다는, 지시를 어긴 결과물을 비판 없이 수용하게 만드는 경향이 더 중요합니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.GENERALIZATION, text: "AI가 보통은 말을 잘 들으니 이번에도 그랬을 거라 생각한다", rationale: "특정 사례를 전체로 확대하는 것은 아닙니다." },
-                        { biasType: CONSTANTS.BIAS_TYPES.ANCHORING, text: "첫 문장이 요청대로 시작해서 끝까지 확인하지 않는다", rationale: "판단을 고정시키는 특정 정보가 있는 것은 아닙니다." }
-                    ]
-                },
-                [
-                    { text: "조건을 짧고 긍정형으로 재지시, 결과를 체크리스트로 검수", rationale: "정답입니다. AI가 '...하지 마세요'와 같은 부정형 명령을 놓쳤을 때, '장점 3가지만 알려줘'처럼 조건을 더 짧고 명확하게 재지시하고, 결과가 요구사항을 모두 충족했는지 확인하는 것이 효과적입니다.", isCorrect: true },
-                    { text: "요약만 보지 말고 원문 샘플링 확인", rationale: "요약 오류가 아니므로 적합하지 않습니다.", isCorrect: false },
-                    { text: "발행일/버전 확인", rationale: "정보의 최신성과는 무관합니다.", isCorrect: false },
-                    { text: "구글 스칼라/DOI로 실재 여부 검증", rationale: "인용 오류가 아니므로 적합하지 않습니다.", isCorrect: false }
-                ]
-            )
-        ];
-
-        // --- State Variables ---
-        let currentScenarioIndex = 0;
-        let level = 0;
-        let biasSelectionCounts = {};
-        let answeredQuestions = {};
-        let scenarios = [];
-        let researchLog = [];
-        let currentLogEntry = {};
-        let stage2RetryCount = 0;
-        let isTimerRunning = false;
-
-        // --- DOM Elements ---
-        const progressBar = document.getElementById('progress-bar');
-        const scenarioArea = document.getElementById('scenario-area');
-        const aiStatement = document.getElementById('ai-statement');
-        const hallucinationTypeEl = document.getElementById('hallucination-type');
-        
-        const questionText1 = document.getElementById('question-text-1');
-        const optionsContainer1 = document.getElementById('options-container-1');
-        const feedbackArea1 = document.getElementById('feedback-area-1');
-        const feedbackContent1 = document.getElementById('feedback-content-1');
-
-        const subQuestion2 = document.getElementById('sub-question-2');
-        const questionText2 = document.getElementById('question-text-2');
-        const optionsContainer2 = document.getElementById('options-container-2');
-        const feedbackArea2 = document.getElementById('feedback-area-2');
-        const feedbackContent2 = document.getElementById('feedback-content-2');
-
-        const navigationArea = document.getElementById('navigation-area');
-        const nextButton = document.getElementById('next-button');
-        const timerWrapper = document.getElementById('timer-wrapper');
-        const timerBar = document.getElementById('timer-bar');
-
-        const resultArea = document.getElementById('result-area');
-        const levelDisplay = document.getElementById('level-display');
-        const quizHeader = document.getElementById('quiz-header');
-        const statusBar = document.getElementById('status-bar');
-
-        // --- Utility Functions ---
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+        function renderPart(partKey) {
+            currentPart = partKey;
+            currentPage = 1;
+            const part = surveyData[partKey];
+            document.getElementById('part-header').innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">${part.title}</h1>`;
+            document.getElementById('progress-bar-container').style.display = (partKey === 'part1') ? 'block' : 'none';
+            renderQuestionPage();
+            showPage('survey-container');
         }
 
-        function toggleElement(element, show) {
-            if (show) {
-                element.classList.remove('hidden');
+        function renderQuestionPage() {
+            const part = surveyData[currentPart];
+            const container = document.getElementById('question-container');
+            let html = '';
+            
+            const evaluationTypeHeaders = config.evaluationTypes.map(type => `<th scope="col">${type.label}</th>`).join('');
+            const likertScaleHeaders = config.evaluationTypes.map(() => `<th class="font-normal border-x-0"><div class="flex justify-around items-center">${config.likertScale.map(n=>`<span>${n}점</span>`).join('')}</div></th>`).join('');
+            const radioButtons = (namePrefix) => config.evaluationTypes.map(type => `<td><div class="flex justify-around items-center">${config.likertScale.map(v => `<label class="cursor-pointer"><input type="radio" class="form-radio" name="${namePrefix}_${type.key}" value="${v}"><span class="sr-only">${v}점</span></label>`).join('')}</div></td>`).join('');
+
+            if (currentPart === 'part1') {
+                const pageData = part.pages[currentPage - 1];
+                let questionsHtml = pageData.questions.map(q => `
+                    <tr>
+                        <td class="font-semibold">${q.subFactor}</td>
+                        <td class="question-text">${q.text}</td>
+                        ${radioButtons(`p1_s${pageData.id}_i${q.id}`)}
+                        <td><input type="text" class="opinion-input" name="p1_s${pageData.id}_i${q.id}_opinion" placeholder="모호한 표현, 대체 문구 제안 등"></td>
+                    </tr>`).join('');
+
+                html = `<div id="scenario-page-${pageData.id}">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 p-3 bg-gray-50 rounded-md">${pageData.title}</h3>
+                    <div class="bg-white p-4 border rounded-md mb-6 whitespace-pre-wrap"><p class="text-gray-700 leading-relaxed">${pageData.text}</p></div>
+                    <div class="overflow-x-auto mb-8 bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 시나리오 자체 평가</h4>
+                        <table class="min-w-full border-collapse bg-white">
+                            <thead class="table-header">
+                                 <tr><th scope="col" rowspan="2">평가 대상</th>${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
+                                 <tr class="text-sm text-gray-600">${likertScaleHeaders}</tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-semibold bg-gray-50">${pageData.title}</td>
+                                    ${radioButtons(`p1_s${pageData.id}_scenario`)}
+                                    <td><input type="text" class="opinion-input" name="p1_s${pageData.id}_scenario_opinion" placeholder="시나리오 개선 의견"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="overflow-x-auto">
+                         <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 개별 문항 평가</h4>
+                        <table class="min-w-full border-collapse">
+                            <thead class="table-header">
+                                 <tr><th scope="col" rowspan="2">하위 요소</th><th scope="col" rowspan="2">문항</th>${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
+                                 <tr class="text-sm text-gray-600">${likertScaleHeaders}</tr>
+                            </thead>
+                            <tbody>${questionsHtml}</tbody>
+                        </table>
+                    </div>
+                </div>`;
             } else {
-                element.classList.add('hidden');
-            }
-        }
-        
-        // --- Core Quiz Logic ---
-        function startQuiz() {
-            // Reset state
-            currentScenarioIndex = 0;
-            level = 0;
-            biasSelectionCounts = {
-                [CONSTANTS.BIAS_TYPES.FRAMING]: 0,
-                [CONSTANTS.BIAS_TYPES.BELIEF]: 0,
-                [CONSTANTS.BIAS_TYPES.GENERALIZATION]: 0,
-                [CONSTANTS.BIAS_TYPES.ANCHORING]: 0
-            };
-            answeredQuestions = {
-                stage1: [],
-                stage2: []
-            };
-            researchLog = [];
-            isTimerRunning = false;
-            
-            // Shuffle scenarios for each new session
-            scenarios = shuffleArray([...scenariosData]);
-
-            // Setup UI
-            toggleElement(quizHeader, true);
-            toggleElement(statusBar, true);
-            toggleElement(scenarioArea, true);
-            toggleElement(resultArea, false);
-            toggleElement(navigationArea, false);
-
-            nextButton.textContent = '다음 시나리오';
-            updateLevelDisplay();
-            showScenario();
-        }
-
-        function showScenario() {
-            // Reset UI for the new scenario
-            toggleElement(subQuestion2, false);
-            toggleElement(feedbackArea1, false);
-            toggleElement(feedbackArea2, false);
-            toggleElement(navigationArea, false);
-            optionsContainer1.innerHTML = '';
-            optionsContainer2.innerHTML = '';
-            stage2RetryCount = 0;
-            
-            if (isTimerRunning) {
-                clearTimeout(isTimerRunning);
-                isTimerRunning = false;
-            }
-            toggleElement(timerWrapper, false);
-            toggleElement(nextButton, true); // Use toggleElement for consistency
-            nextButton.classList.add('hidden'); // Initially hide
-            timerBar.style.transition = 'none';
-            timerBar.style.width = '0%';
-
-            // Update progress bar
-            progressBar.style.width = `${((currentScenarioIndex + 1) / scenarios.length) * 100}%`;
-
-            const currentScenario = scenarios[currentScenarioIndex];
-            
-            // Log scenario entry
-            currentLogEntry = {
-                scenarioIndex: currentScenarioIndex,
-                timestamp: new Date().toISOString(),
-                hallucinationType: currentScenario.hallucinationType,
-            };
-            currentLogEntry.scenarioStartTime = Date.now();
-
-
-            hallucinationTypeEl.textContent = currentScenario.hallucinationType;
-            aiStatement.textContent = currentScenario.aiStatement; // Use textContent for safety
-            
-            questionText1.textContent = currentScenario.question1.text;
-            const shuffledQ1Options = shuffleArray([...currentScenario.question1.options]);
-            currentLogEntry.q1OptionOrder = shuffledQ1Options.map(opt => opt.text);
-
-            shuffledQ1Options.forEach(option => {
-                const button = document.createElement('button');
-                button.textContent = option.text;
-                button.setAttribute('role', 'radio');
-                button.setAttribute('aria-checked', 'false');
-                button.className = "w-full text-left p-4 border rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300";
-                button.onclick = () => selectAnswer(option, button, 1);
-                optionsContainer1.appendChild(button);
-            });
-            
-            questionText2.textContent = currentScenario.question2.text;
-            
-            const shuffledQ2Options = shuffleArray([...currentScenario.question2.options]);
-            currentLogEntry.q2OptionOrder = shuffledQ2Options.map(opt => opt.text);
-
-            shuffledQ2Options.forEach(option => {
-                const button = document.createElement('button');
-                button.textContent = option.text;
-                button.setAttribute('role', 'radio');
-                button.setAttribute('aria-checked', 'false');
-                button.className = "w-full text-left p-4 border rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300";
-                button.onclick = () => selectAnswer(option, button, 2);
-                optionsContainer2.appendChild(button);
-            });
-        }
-        
-        function updateLevelDisplay() {
-            levelDisplay.textContent = `Lv. ${level}`;
-        }
-
-        function selectAnswer(selectedOption, selectedButton, questionNumber) {
-            let feedbackContent, feedbackArea, optionsContainer;
-
-            if (questionNumber === 1) {
-                feedbackContent = feedbackContent1;
-                feedbackArea = feedbackArea1;
-                optionsContainer = optionsContainer1;
-
-                if (!answeredQuestions.stage1.includes(currentScenarioIndex)) {
-                    const isCorrect = selectedOption.biasType === scenarios[currentScenarioIndex].question1.intendedBias;
-                    if (isCorrect) {
-                        level++;
-                    }
-                    // Log Q1 data
-                    currentLogEntry.q1ReactionTime = Date.now() - currentLogEntry.scenarioStartTime;
-                    currentLogEntry.q1Selection = selectedOption.biasType;
-                    currentLogEntry.q1Correct = isCorrect;
-                    currentLogEntry.q2StartTime = Date.now(); // Set start time for Q2
-
-                    biasSelectionCounts[selectedOption.biasType]++;
-                    answeredQuestions.stage1.push(currentScenarioIndex);
-                    updateLevelDisplay();
-                }
-
-                const biasType = selectedOption.biasType;
-                const biasDef = biasDefinitions[biasType];
-                feedbackContent.innerHTML = `<strong class="font-bold">[${biasType}]</strong>을(를) 선택하셨습니다.<br><p class="mt-1 text-gray-600">${biasDef}</p><hr class="my-2"><p>${selectedOption.rationale}</p>`;
-
-            } else { 
-                feedbackContent = feedbackContent2;
-                feedbackArea = feedbackArea2;
-                optionsContainer = optionsContainer2;
-
-                if (!answeredQuestions.stage2.includes(currentScenarioIndex)) {
-                     if (selectedOption.isCorrect) {
-                        level++;
-                    }
-                    // Log Q2 data
-                    currentLogEntry.q2ReactionTime = Date.now() - currentLogEntry.q2StartTime;
-                    currentLogEntry.q2Selection = selectedOption.text;
-                    currentLogEntry.q2Correct = selectedOption.isCorrect;
-                    currentLogEntry.q2RetryCount = stage2RetryCount;
+                part.categories.forEach(category => {
+                    let questionsHtml = category.questions.map(q => `
+                        <tr>
+                            <td class="question-text">${q.text}</td>
+                            ${radioButtons(`p2_c${category.id}_i'${q.id}'`)}
+                            <td><input type="text" class="opinion-input" name="p2_c${category.id}_i'${q.id}'_opinion" placeholder="모호한 표현, 대체 문구 제안 등"></td>
+                        </tr>`).join('');
                     
-                    answeredQuestions.stage2.push(currentScenarioIndex);
-                    updateLevelDisplay();
-                }
-
-                if(!selectedOption.isCorrect){
-                     stage2RetryCount++;
-                }
-
-                let hintHTML = '';
-                if (stage2RetryCount >= CONSTANTS.HINT_THRESHOLD && !selectedOption.isCorrect) {
-                    const correctOption = scenarios[currentScenarioIndex].question2.options.find(opt => opt.isCorrect);
-                    hintHTML = `<hr class="my-2"><p class="font-bold text-yellow-600">힌트: '${correctOption.text.substring(0, 10)}...'와 관련된 내용인지 다시 생각해보세요.</p>`;
-                }
-                
-                feedbackContent.innerHTML = `<strong class="font-bold">해설 보기</strong><br>${selectedOption.rationale}${hintHTML}`;
-            }
-            
-            toggleElement(feedbackArea, true);
-            if (!feedbackArea.classList.contains('fade-in')) {
-                 feedbackArea.classList.add('fade-in');
-            }
-            
-            Array.from(optionsContainer.children).forEach(button => {
-                button.classList.remove('bg-blue-100', 'border-blue-400', 'ring-2', 'ring-blue-400');
-                button.setAttribute('aria-checked', 'false');
-            });
-            selectedButton.classList.add('bg-blue-100', 'border-blue-400', 'ring-2', 'ring-blue-400');
-            selectedButton.setAttribute('aria-checked', 'true');
-
-            if (questionNumber === 1) {
-                toggleElement(subQuestion2, true);
-                if(!subQuestion2.classList.contains('reveal')){
-                    subQuestion2.classList.add('reveal');
-                }
-            } else { // This is questionNumber === 2
-                if (selectedOption.isCorrect && !isTimerRunning) {
-                    researchLog.push(currentLogEntry); // Finalize log entry when correct answer is given
-
-                    isTimerRunning = true;
-                    toggleElement(navigationArea, true);
-                    toggleElement(timerWrapper, true);
-                    toggleElement(nextButton, false);
-
-                    void timerBar.offsetWidth; // Force reflow for animation
-                    timerBar.style.transition = `width ${CONSTANTS.TIMER_DURATION}ms linear`;
-                    timerBar.style.width = '100%';
-
-                    setTimeout(() => {
-                        toggleElement(timerWrapper, false);
-                        toggleElement(nextButton, true);
-                        nextButton.classList.add('fade-in');
-                        timerBar.style.transition = 'none';
-                        timerBar.style.width = '0%';
-                        isTimerRunning = false;
-                    }, CONSTANTS.TIMER_DURATION);
-
-                    if (currentScenarioIndex === scenarios.length - 1) {
-                        nextButton.textContent = '학습 완료';
-                    }
-                }
-            }
-        }
-
-        nextButton.addEventListener('click', () => {
-            currentScenarioIndex++;
-            if (currentScenarioIndex < scenarios.length) {
-                showScenario();
-            } else {
-                showResult();
-            }
-        });
-        
-        function showResult() {
-            toggleElement(quizHeader, false);
-            toggleElement(statusBar, false);
-            toggleElement(scenarioArea, false);
-            toggleElement(navigationArea, false);
-            toggleElement(resultArea, true);
-            resultArea.classList.add('fade-in');
-
-            const maxLevel = scenarios.length * 2;
-            let resultTypeKey = '';
-            
-            if (level === maxLevel) {
-                resultTypeKey = 'perfect';
-            } else {
-                let maxCount = 0;
-                let dominantBiases = [];
-                Object.keys(biasSelectionCounts).forEach(bias => {
-                    if (biasSelectionCounts[bias] > maxCount) {
-                        maxCount = biasSelectionCounts[bias];
-                        dominantBiases = [bias];
-                    } else if (biasSelectionCounts[bias] === maxCount && maxCount > 0) {
-                        dominantBiases.push(bias);
-                    }
+                    html += `<div id="prepost-category-${category.id}" class="mb-10">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 p-3 bg-gray-50 rounded-md">구성요인: ${category.title}</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full border-collapse">
+                                <thead class="table-header">
+                                    <tr><th scope="col" rowspan="2">문항</th>${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
+                                    <tr class="text-sm text-gray-600">${likertScaleHeaders}</tr>
+                                </thead>
+                                <tbody>${questionsHtml}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
                 });
+            }
+            container.innerHTML = html;
+            repopulateForm();
+            updatePaginationControls();
+        }
 
-                if (dominantBiases.length > 1) {
-                     resultTypeKey = "혼합형";
-                } else {
-                     resultTypeKey = dominantBiases[0];
+        function updateSessionData() {
+            const formData = new FormData(document.getElementById('evaluationForm'));
+            for(const [key, value] of formData.entries()) {
+                sessionData[key] = value;
+            }
+        }
+
+        function repopulateForm() {
+            const form = document.getElementById('evaluationForm');
+            form.querySelectorAll('input').forEach(input => {
+                const value = sessionData[input.name];
+                if(value) {
+                    if(input.type === 'radio') {
+                        if(input.value === value) {
+                            input.checked = true;
+                        }
+                    } else {
+                        input.value = value;
+                    }
+                }
+            });
+        }
+        
+        function updatePaginationControls() {
+            const part = surveyData[currentPart];
+            const pageIndicator = document.getElementById('page-indicator');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const submitPartBtn = document.getElementById('submit-part-btn');
+            const progressBar = document.getElementById('progress-bar');
+
+            if (currentPart === 'part1') {
+                const totalPages = part.pages.length;
+                pageIndicator.textContent = `페이지 ${currentPage} / ${totalPages}`;
+                pageIndicator.style.display = 'inline-block';
+                prevBtn.style.display = 'inline-block';
+                nextBtn.style.display = currentPage === totalPages ? 'none' : 'inline-block';
+                submitPartBtn.style.display = currentPage === totalPages ? 'inline-block' : 'none';
+                prevBtn.disabled = currentPage === 1;
+                progressBar.style.width = `${(currentPage / totalPages) * 100}%`;
+            } else {
+                pageIndicator.style.display = 'none';
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                submitPartBtn.style.display = 'inline-block';
+            }
+        }
+        
+        function validateCurrentPage() {
+            const container = document.getElementById('question-container');
+            const radioGroups = new Map();
+            container.querySelectorAll('input[type="radio"]').forEach(radio => {
+                if (!radioGroups.has(radio.name)) {
+                    const row = radio.closest('tr');
+                    const questionText = row ? row.querySelector('.question-text, .font-semibold')?.textContent.trim() : `항목`;
+                    radioGroups.set(radio.name, { answered: false, label: questionText });
+                }
+            });
+
+            for (const name of radioGroups.keys()) {
+                if (document.querySelector(`form#evaluationForm input[name="${name}"]:checked`)) {
+                    radioGroups.get(name).answered = true;
                 }
             }
             
-            const resultTypeData = resultTypes[resultTypeKey] || {
-                 title: "혼합형 분석가",
-                 description: "다양한 유형의 편향을 고루 탐지하는 균형 잡힌 시각을 가지고 있습니다.",
-                 strength: "특정 유형의 편향에 치우치지 않고, 여러 관점에서 AI의 답변을 분석하는 좋은 습관을 가지고 있습니다. 이는 복합적인 오류를 찾아내는 데 강점으로 작용할 수 있습니다.",
-                 weakness: "다양한 편향을 인지하는 만큼, 특정 유형에 대한 깊이 있는 분석이나 대응 전략이 부족할 수 있습니다. 각 편향의 특징을 다시 한번 학습하며 전문성을 높여보세요.",
-                 solution: "가장 많이 선택한 두 가지 편향 유형('"+resultTypeKey+"')의 솔루션을 집중적으로 실천해 보세요. 이는 당신의 분석 능력을 한 단계 더 끌어올릴 것입니다."
-            };
+            const unanswered = [];
+            for (const [name, data] of radioGroups.entries()) {
+                if (!data.answered) {
+                    let questionType = '';
+                    for (const type of config.evaluationTypes) {
+                        if (name.includes(type.key)) {
+                            questionType = type.label;
+                            break;
+                        }
+                    }
+                    unanswered.push(`'${data.label}'의 <strong>${questionType}</strong>`);
+                }
+            }
+            return unanswered;
+        }
 
-            let biasAnalysisHTML = '';
-            const totalSelections = scenarios.length;
-
-            Object.values(CONSTANTS.BIAS_TYPES).forEach(bias => {
-                const count = biasSelectionCounts[bias];
-                const percentage = totalSelections > 0 ? ((count / totalSelections) * 100).toFixed(0) : 0;
-                biasAnalysisHTML += `
-                    <div class="flex items-center mb-2">
-                        <span class="w-24 text-sm text-gray-600">${bias}</span>
-                        <div class="w-full bg-gray-200 rounded-full h-4 mr-2">
-                            <div class="bg-orange-400 h-4 rounded-full text-xs text-white text-center leading-4" style="width: ${percentage}%">${percentage > 10 ? percentage + '%' : ''}</div>
-                        </div>
-                        <span class="w-8 text-sm font-semibold text-gray-700">${count}회</span>
-                    </div>
-                `;
+        function displaySummary(data) {
+            const summaryData = {};
+            ['p1_scenario', 'p1_item', 'p2_item'].forEach(part => {
+                summaryData[part] = {};
+                config.evaluationTypes.forEach(type => summaryData[part][type.key] = []);
             });
-            
-            let resultSectionsHTML = `
-                 <div class="bg-gray-100 p-4 rounded-lg">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <svg class="h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.008h-.008v-.008z" /></svg>
-                        </div>
-                        <div class="ml-3">
-                            <h4 class="font-bold text-gray-800">강점</h4>
-                            <p class="text-gray-600 text-sm mt-1">${resultTypeData.strength}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
 
-            if (resultTypeKey !== 'perfect') {
-                resultSectionsHTML += `
-                     <div class="bg-gray-100 p-4 rounded-lg">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.472-2.472a3.375 3.375 0 00-4.773-4.773L6.75 11.42m5.877 5.877l-5.877-5.877m0 0a3.375 3.375 0 014.773-4.773L15.17 11.42m-5.877 5.877l-2.472-2.472" /></svg>
-                            </div>
-                            <div class="ml-3">
-                                <h4 class="font-bold text-gray-800">약점</h4>
-                                <p class="text-gray-600 text-sm mt-1">${resultTypeData.weakness}</p>
-                            </div>
-                        </div>
-                    </div>
-                     <div class="bg-gray-100 p-4 rounded-lg">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <svg class="h-6 w-6 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-1.125a6.01 6.01 0 001.125-1.5m-2.625 2.625a6.01 6.01 0 00-1.125-1.5a6.01 6.01 0 00-1.5-1.125m2.625 2.625V18m0-5.25V6.75A2.25 2.25 0 0112 4.5a2.25 2.25 0 012.25 2.25v2.25m-4.5 0V6.75A2.25 2.25 0 0110.5 4.5a2.25 2.25 0 012.25 2.25v2.25m-4.5 0h4.5m-4.5 0a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 016 4.5a2.25 2.25 0 012.25 2.25v2.25m0 0a2.25 2.25 0 012.25 2.25v3.375m0 0a2.25 2.25 0 01-2.25 2.25H9.75a2.25 2.25 0 01-2.25-2.25v-3.375m0 0a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 9V6.75A2.25 2.25 0 016.75 4.5a2.25 2.25 0 012.25 2.25v2.25" /></svg>
-                            </div>
-                            <div class="ml-3">
-                                <h4 class="font-bold text-gray-800">솔루션</h4>
-                                <p class="text-gray-600 text-sm mt-1">${resultTypeData.solution}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
+            for (const key in data.responses) {
+                const val = parseInt(data.responses[key]);
+                if (isNaN(val)) continue;
+                
+                const keyParts = key.split('_');
+                const partPrefix = keyParts[0]; // p1 or p2
+                const itemType = key.includes('_scenario_') ? 'scenario' : 'item';
+                const fullPartKey = `${partPrefix}_${itemType}`;
+
+                if (summaryData[fullPartKey]) {
+                    for (const type of config.evaluationTypes) {
+                        if (key.endsWith(type.key)) {
+                            summaryData[fullPartKey][type.key].push(val);
+                            break;
+                        }
+                    }
+                }
             }
 
-            resultArea.innerHTML = `
-                <h2 class="text-2xl font-bold text-gray-800">진단 완료!</h2>
-                <p class="text-gray-600 mb-4">당신의 AI 분석 스타일은...</p>
-                
-                <h3 class="text-3xl font-bold text-orange-500 mb-2">${resultTypeData.title}</h3>
-                <p class="text-gray-700 mb-6">${resultTypeData.description}</p>
-
-                <div class="text-left space-y-4 mb-8">
-                    ${resultSectionsHTML}
+            const calculateAvg = (arr) => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2) : 'N/A';
+            
+            const p1_scenario_avg = {}, p1_item_avg = {}, p2_item_avg = {};
+            config.evaluationTypes.forEach(type => {
+                p1_scenario_avg[type.key] = calculateAvg(summaryData.p1_scenario[type.key]);
+                p1_item_avg[type.key] = calculateAvg(summaryData.p1_item[type.key]);
+                p2_item_avg[type.key] = calculateAvg(summaryData.p2_item[type.key]);
+            });
+            
+            const generateSummaryList = (avgData, color) => config.evaluationTypes.map(type => 
+                `<li class="flex justify-between"><span>${type.label}:</span> <span class="font-bold text-${color}-600">${avgData[type.key]} / 4.00</span></li>`
+            ).join('');
+            
+            const summaryContainer = document.getElementById('summary-page');
+            summaryContainer.innerHTML = `
+                <div class="text-center">
+                    <h2 class="text-2xl font-bold text-gray-800">응답 요약 및 최종 제출</h2>
+                    <p class="mt-4 text-gray-600">아래 요약은 전문가님의 개인 응답에 대한 미리보기입니다. 최종 I-CVI, S-CVI 등의 타당도 지수는 모든 전문가 패널의 응답을 종합하여 산출될 예정입니다.</p>
                 </div>
-
-                <div class="border-t pt-6 mt-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">나의 편향 선택 결과</h3>
-                    <div class="space-y-3">
-                        ${biasAnalysisHTML}
+                <div class="mt-10 grid md:grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">파트 1: 시나리오 평가 요약</h3>
+                        <div class="mt-4"><h4 class="font-semibold text-gray-700">시나리오 자체 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_scenario_avg, 'blue')}</ul></div>
+                        <div class="mt-6 pt-4 border-t"><h4 class="font-semibold text-gray-700">개별 문항 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_item_avg, 'blue')}</ul></div>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">파트 2: 사전/사후 검사 평가 요약</h3>
+                        <div class="mt-4"><h4 class="font-semibold text-gray-700">개별 문항 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p2_item_avg, 'purple')}</ul></div>
                     </div>
                 </div>
-
-                <button id="restart-button-final" class="w-full bg-gray-800 text-white font-bold py-3 px-4 rounded-lg hover:bg-black transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 mt-8">다시 학습하기</button>
+                 <div class="mt-10 pt-8 border-t"><h3 class="text-xl font-bold text-gray-800 mb-4 text-center">전체 설문에 대한 종합 의견 (선택사항)</h3><p class="text-center text-gray-600 mb-4">평가 문항 전반에 대한 의견이나 기타 제언이 있으시다면 자유롭게 남겨주세요.</p><div class="max-w-4xl mx-auto"><textarea id="overall-opinion" name="overall-opinion" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="종합 의견을 입력해주세요..."></textarea></div></div>
+                 <div class="mt-10 pt-8 border-t">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">개인정보 수집 및 이용 안내</h3>
+                    <div class="text-sm text-gray-600 max-w-3xl mx-auto bg-gray-50 p-4 rounded border">
+                        <p><strong>수집 목적:</strong> 연구 참여 보상(커피 쿠폰) 발송</p>
+                        <p><strong>수집 항목:</strong> 휴대전화 번호</p>
+                        <p><strong>보유 및 이용기간:</strong> 보상 발송 완료 후 즉시 파기</p>
+                        <p class="mt-2">연락처 정보는 연구 데이터와 완전히 분리되어 저장 및 관리됩니다. 정보 제공은 자발적이며, 원치 않으실 경우 입력하지 않으셔도 됩니다. 동의 철회를 원하시면 언제든지 연구자에게 연락주시기 바랍니다.</p>
+                    </div>
+                    <div class="max-w-sm mx-auto mt-4">
+                        <label for="contact-info" class="block text-sm font-medium text-gray-700">연락처 (휴대전화 번호)</label>
+                        <input type="tel" id="contact-info" name="contact-info" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="'-' 없이 숫자만 입력해주세요">
+                    </div>
+                </div>
+                <div class="text-center mt-12 flex justify-center gap-4">
+                    <button id="back-to-selection-final-btn" class="nav-btn bg-gray-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-600">수정하기</button>
+                    <button id="final-submit-btn" class="nav-btn bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700">설문 최종 제출하기</button>
+                </div>
             `;
-            document.getElementById('restart-button-final').addEventListener('click', startQuiz);
+        }
+
+        function showThankYouMessage() {
+            const container = document.getElementById('main-container');
+            container.innerHTML = `
+                <div class="text-center py-12">
+                    <h2 class="text-3xl font-bold text-gray-800">설문이 성공적으로 제출되었습니다.</h2>
+                    <p class="mt-4 text-lg text-gray-600">참여해주셔서 대단히 감사합니다. 전문가님의 소중한 의견은 연구에 큰 도움이 될 것입니다.</p>
+                    <p class="mt-2 text-sm text-gray-500">이제 이 창을 닫으셔도 좋습니다. 브라우저의 '뒤로 가기'로 재제출하실 수 없습니다.</p>
+                </div>`;
         }
         
-        // --- Research Data Export Function ---
-        function exportLog() {
-            const dataStr = JSON.stringify(researchLog, null, 2);
-            const dataBlob = new Blob([dataStr], {type: "application/json"});
-            const url = URL.createObjectURL(dataBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `quiz-log-${new Date().toISOString()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            console.log("Log data exported.");
+        function collectAllData() {
+            const panelInfoForm = new FormData(document.getElementById('panel-info-form'));
+            const data = { 
+                instrumentId: config.instrumentId,
+                respondentId: `expert_${new Date().getTime()}`, 
+                createdAt: new Date().toISOString(),
+                panelInfo: {
+                    major: panelInfoForm.get('major'),
+                    experienceYear: panelInfoForm.get('experience-year'),
+                    affiliation: panelInfoForm.get('affiliation'),
+                    validationExp: panelInfoForm.get('validation-exp'),
+                },
+                responses: { ...sessionData }
+            };
+            return data;
         }
-        
-        // --- Initial Start ---
-        startQuiz();
+
+        async function saveToFirebase(data) {
+            console.log("Submitting to Firebase:", data);
+            return new Promise(resolve => setTimeout(() => resolve(true), 500));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContainer = document.getElementById('main-container');
+            
+            mainContainer.addEventListener('click', async (event) => {
+                const target = event.target.closest('button');
+                if (!target) return;
+
+                switch (target.id) {
+                    case 'consent-btn':
+                        showPage('panel-info-page');
+                        break;
+                    case 'start-part1-btn':
+                        renderPart('part1');
+                        break;
+                    case 'start-part2-btn':
+                        renderPart('part2');
+                        break;
+                    case 'back-to-selection-btn':
+                        updateSessionData();
+                        showPage('part-selection-page');
+                        break;
+                    case 'next-btn': {
+                        const unanswered = validateCurrentPage();
+                        if (unanswered.length > 0) {
+                            showAlert(`다음 항목의 응답을 완료해주세요:<br><ul class="list-disc list-inside mt-2 text-left">${unanswered.map(u => `<li>${u}</li>`).join('')}</ul>`);
+                            return;
+                        }
+                        updateSessionData();
+                        if (currentPart === 'part1' && currentPage < surveyData[currentPart].pages.length) {
+                            currentPage++;
+                            renderQuestionPage();
+                        }
+                        break;
+                    }
+                    case 'prev-btn':
+                        updateSessionData();
+                        if (currentPart === 'part1' && currentPage > 1) {
+                            currentPage--;
+                            renderQuestionPage();
+                        }
+                        break;
+                    case 'go-to-summary-btn':
+                        collectedData = collectAllData();
+                        displaySummary(collectedData);
+                        showPage('summary-page');
+                        break;
+                    case 'back-to-selection-final-btn':
+                        document.getElementById('start-part1-btn').disabled = false;
+                        document.getElementById('start-part2-btn').disabled = false;
+                        showPage('part-selection-page');
+                        break;
+                    case 'final-submit-btn': {
+                        const contactInfo = document.getElementById('contact-info').value;
+                        if (!contactInfo) {
+                            alert('커피 쿠폰 발송을 위해 연락처를 입력해주세요.');
+                            return;
+                        }
+                        const overallOpinion = document.getElementById('overall-opinion').value;
+                        collectedData.contactInfo = contactInfo;
+                        collectedData.overallOpinion = overallOpinion;
+                        
+                        target.disabled = true;
+                        target.textContent = '제출 중...';
+
+                        const success = await saveToFirebase(collectedData);
+                        if (success) {
+                            showThankYouMessage();
+                        } else {
+                            alert('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                            target.disabled = false;
+                            target.textContent = '설문 최종 제출하기';
+                        }
+                        break;
+                    }
+                    case 'close-alert-btn':
+                         document.getElementById('alert-modal').style.display = 'none';
+                        break;
+                }
+            });
+            
+            mainContainer.addEventListener('submit', (event) => {
+                 event.preventDefault();
+                 if(event.target.id === 'panel-info-form') {
+                     showPage('part-selection-page');
+                 } else if (event.target.id === 'evaluationForm') {
+                     const unanswered = validateCurrentPage();
+                    if (unanswered.length > 0) {
+                        showAlert(`다음 항목의 응답을 완료해주세요:<br><ul class="list-disc list-inside mt-2 text-left">${unanswered.map(u => `<li>${u}</li>`).join('')}</ul>`);
+                        return;
+                    }
+                    updateSessionData();
+                    surveyData[currentPart].completed = true;
+                    const btn = document.getElementById(`start-${currentPart}-btn`);
+                    btn.classList.add('part-btn-completed');
+                    btn.disabled = true;
+                    if (!btn.querySelector('.completion-text')) {
+                        btn.innerHTML += '<span class="completion-text text-sm font-normal mt-1">(완료)</span>';
+                    }
+                    if(surveyData.part1.completed && surveyData.part2.completed) {
+                        document.getElementById('go-to-summary-btn').disabled = false;
+                    }
+                    showPage('part-selection-page');
+                 }
+            });
+        });
     </script>
 </body>
 </html>
