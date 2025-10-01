@@ -74,151 +74,22 @@
 
     <div id="main-container" class="max-w-7xl mx-auto bg-white rounded-lg shadow-xl p-6 sm:p-8">
         
-        <!-- 시작 안내 및 IRB 동의 페이지 -->
-        <div id="consent-page" class="page active">
-            <header class="text-center border-b pb-4 mb-8">
-                 <h1 class="text-3xl font-bold text-gray-800">문항 타당도 평가 연구 참여 안내 및 동의서</h1>
-                 <p class="mt-2 text-gray-500">[연구 기관명] / [IRB 승인 번호: XXX-XXX]</p>
-            </header>
-            <div class="text-left max-w-4xl mx-auto space-y-6 text-gray-700">
-                <p>본 평가는 <strong>[연구/프로젝트 이름]</strong>의 일환으로 개발된 <strong>[측정 대상, 예: 대학생의 공감 능력]</strong> 측정 도구의 내용 타당도를 검증하기 위해 마련되었습니다.</p>
-                
-                <div>
-                    <h3 class="font-bold text-lg mb-2">1. 연구 목적 및 절차</h3>
-                    <p>본 연구는 개발된 문항이 본래 측정하고자 하는 개념을 얼마나 충실히 반영하고 있는지 전문가님의 의견을 수렴하여 도구의 질을 향상시키는 것을 목적으로 합니다. 평가는 크게 두 파트로 구성되며, 예상 소요 시간은 약 <strong>[예상 소요 시간, 예: 20-30분]</strong>입니다.</p>
-                </div>
-                <div>
-                    <h3 class="font-bold text-lg mb-2">2. 위험 및 혜택, 보상</h3>
-                    <p>본 연구 참여로 인해 예상되는 위험은 없으며, 참여에 대한 직접적인 혜택 또한 없습니다. 다만 전문가님의 소중한 의견은 학문적 발전에 기여할 것입니다. 참여 완료 시 감사의 의미로 소정의 보상(커피 쿠폰)을 지급해 드립니다.</p>
-                </div>
-                <div>
-                    <h3 class="font-bold text-lg mb-2">3. 익명성 보장 및 정보보호</h3>
-                    <p>응답 내용은 코드화되어 익명으로 처리되며, 연구 데이터와 보상 발송을 위한 연락처 정보는 물리적/논리적으로 완벽히 분리하여 관리됩니다. 연락처 정보는 보상 발송 즉시 파기되며, 연구 데이터는 관련 법규에 따라 [보관 기간, 예: 3년]간 안전하게 보관 후 파기됩니다. 본 연구 결과는 학술적 목적으로만 사용됩니다.</p>
-                </div>
-                <div>
-                    <h3 class="font-bold text-lg mb-2">4. 참여 및 철회 권리</h3>
-                    <p>연구 참여는 자발적이며, 언제든지 동의를 철회하고 평가를 중단할 수 있습니다. 중단으로 인한 어떠한 불이익도 없습니다.</p>
-                </div>
-                 <div>
-                    <h3 class="font-bold text-lg mb-2">5. 문의처</h3>
-                    <p>본 연구에 대해 궁금한 점이 있으시면 아래 연락처로 문의 바랍니다.</p>
-                    <p class="mt-1 text-sm">책임 연구자: [연구자 이름] ([소속]) / 이메일: [이메일 주소] / 연락처: [전화번호]</p>
-                </div>
-            </div>
-            <div class="mt-10 text-center">
-                <p class="mb-4 text-gray-600">위 내용을 모두 확인하였으며, 연구 참여에 자발적으로 동의합니다.</p>
-                <button id="consent-btn" class="nav-btn bg-indigo-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-indigo-700 transition-colors duration-300 text-lg">
-                    동의 및 평가 시작하기
-                </button>
-            </div>
-        </div>
-
-        <!-- 전문가 정보 입력 페이지 -->
-        <div id="panel-info-page" class="page">
-             <h1 class="text-3xl font-bold text-gray-800 text-center">전문가 정보 입력</h1>
-             <p class="mt-4 text-lg text-gray-600 text-center">원활한 분석을 위해 전문가님의 정보를 입력해주세요.</p>
-             <form id="panel-info-form" class="mt-8 max-w-2xl mx-auto space-y-6">
-                 <div>
-                     <label for="major" class="block text-sm font-medium text-gray-700">전공 분야</label>
-                     <input type="text" id="major" name="major" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                 </div>
-                 <div>
-                     <label for="experience-year" class="block text-sm font-medium text-gray-700">관련 실무/연구 경력 (년수)</label>
-                     <input type="number" id="experience-year" name="experience-year" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                 </div>
-                 <div>
-                     <label for="affiliation" class="block text-sm font-medium text-gray-700">소속 영역 (예: 교육심리, 교육공학, AI)</label>
-                     <input type="text" id="affiliation" name="affiliation" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                 </div>
-                 <div>
-                     <p class="block text-sm font-medium text-gray-700">타당도 검증 참여 경험</p>
-                     <div class="mt-2 space-x-4">
-                        <label class="inline-flex items-center"><input type="radio" name="validation-exp" value="yes" class="form-radio" required> <span class="ml-2">있음</span></label>
-                        <label class="inline-flex items-center"><input type="radio" name="validation-exp" value="no" class="form-radio"> <span class="ml-2">없음</span></label>
-                     </div>
-                 </div>
-                 <div class="text-center pt-6">
-                     <button type="submit" class="nav-btn bg-indigo-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-indigo-700">다음</button>
-                 </div>
-             </form>
-        </div>
-
-        <!-- 파트 선택 페이지 -->
-        <div id="part-selection-page" class="page text-center">
-             <h1 class="text-3xl font-bold text-gray-800">평가 파트 선택</h1>
-             <p class="mt-4 text-lg text-gray-600">원하시는 파트를 선택하여 평가를 진행해주세요. (순서 무관)</p>
-             <div class="mt-10 flex flex-col md:flex-row justify-center items-center gap-8">
-                <button id="start-part1-btn" class="part-btn w-full md:w-80 h-40 text-2xl font-bold border-2 border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors duration-300 flex flex-col justify-center items-center">
-                    <span>파트 1</span>
-                    <span class="text-lg font-medium mt-2">시나리오 기반 문항 평가</span>
-                </button>
-                <button id="start-part2-btn" class="part-btn w-full md:w-80 h-40 text-2xl font-bold border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-300 flex flex-col justify-center items-center">
-                    <span>파트 2</span>
-                    <span class="text-lg font-medium mt-2">사전/사후 검사 문항 평가</span>
-                </button>
-             </div>
-             <div class="mt-12">
-                 <button id="go-to-summary-btn" class="nav-btn bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors duration-300 text-lg" disabled>
-                    응답 요약 및 최종 제출 하기
-                </button>
-                <p class="mt-2 text-sm text-gray-500">※ 두 파트를 모두 완료해야 버튼이 활성화됩니다.</p>
-             </div>
-        </div>
-
-        <!-- 설문지 본문 (동적 생성) -->
-        <main id="survey-container" class="page">
-             <div id="progress-bar-container" class="w-full bg-gray-200 rounded-full h-2.5 mb-4" style="display: none;">
-                <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full progress-bar"></div>
-             </div>
-             <form id="evaluationForm">
-                <div id="part-header"></div>
-                <!-- 평가 안내문 -->
-                <details class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-8 cursor-pointer">
-                    <summary class="font-semibold text-lg text-gray-800">평가 안내문 (클릭하여 보기/접기)</summary>
-                    <div class="mt-4">
-                        <p class="text-gray-700 mb-4">
-                            제시된 각 문항에 대해, 내용 타당도, 표현의 명확성, 필요성을 4점 척도로 평가해주십시오. 또한 필요 시 개선 의견을 작성해 주십시오.
-                        </p>
-                        <h4 class="font-semibold text-gray-800 mb-2">평가 척도 (4점 Likert)</h4>
-                        <ul class="list-disc list-inside text-gray-600">
-                            <li><strong>1점:</strong> 전혀 그렇지 않다</li>
-                            <li><strong>2점:</strong> 다소 그렇지 않다</li>
-                            <li><strong>3점:</strong> 그렇다 (타당함)</li>
-                            <li><strong>4점:</strong> 매우 그렇다 (매우 타당함)</li>
-                        </ul>
-                    </div>
-                </details>
-                <div id="question-container"></div>
-                <div id="pagination-controls" class="mt-10 flex justify-between items-center">
-                    <button type="button" id="back-to-selection-btn" class="nav-btn bg-gray-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-600">파트 선택으로</button>
-                    <span id="page-indicator" class="text-gray-700 font-semibold"></span>
-                    <div>
-                        <button type="button" id="prev-btn" class="nav-btn bg-gray-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-600">이전</button>
-                        <button type="button" id="next-btn" class="nav-btn bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-indigo-700">다음</button>
-                        <button type="submit" id="submit-part-btn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700" style="display: none;">파트 완료</button>
-                    </div>
-                </div>
-            </form>
-        </main>
-
-        <!-- 요약 및 최종 제출 페이지 -->
+        <!-- 각 페이지의 내용은 JavaScript에 의해 동적으로 채워집니다. -->
+        <div id="consent-page" class="page active"></div>
+        <div id="panel-info-page" class="page"></div>
+        <div id="part-selection-page" class="page"></div>
+        <main id="survey-container" class="page"></main>
         <div id="summary-page" class="page"></div>
 
         <!-- Validation Alert Modal -->
         <div id="alert-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center" style="display: none;">
             <div class="relative mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
                 <div class="mt-3 text-center">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">응답 누락 알림</h3>
+                    <h3 id="alert-title" class="text-lg leading-6 font-medium text-gray-900"></h3>
                     <div class="mt-2 px-7 py-3">
                         <p class="text-sm text-gray-500" id="alert-message"></p>
                     </div>
-                    <div class="items-center px-4 py-3 space-y-2 sm:space-y-0 sm:flex sm:flex-row-reverse sm:space-x-2 sm:space-x-reverse">
-                        <button id="alert-proceed-btn" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700">
-                            그대로 진행
-                        </button>
-                        <button id="alert-close-btn" class="w-full sm:w-auto mt-2 sm:mt-0 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50">
-                            돌아가서 수정
-                        </button>
+                    <div id="alert-buttons" class="items-center px-4 py-3 space-y-2 sm:space-y-0 sm:flex sm:flex-row-reverse sm:space-x-2 sm:space-x-reverse">
                     </div>
                 </div>
             </div>
@@ -227,9 +98,14 @@
 
 
     <script>
-        // --- 설정 (Configuration) ---
+        // =================================================================================
+        // --- 설정 영역 (Configuration Area) ---
+        // 이 설문지의 모든 텍스트와 구조는 이 영역에서 수정할 수 있습니다.
+        // =================================================================================
+
+        // --- 1. 기본 설정 (Basic Configuration) ---
         const config = {
-            instrumentId: 'CVI_Survey_v1', // 연구/측정도구를 식별하는 고유 ID
+            instrumentId: 'CVI_Survey_v1',
             evaluationTypes: [
                 { key: 'relevance', label: '타당도' },
                 { key: 'clarity', label: '명확성' },
@@ -238,7 +114,126 @@
             likertScale: [1, 2, 3, 4]
         };
 
-        // --- 데이터 ---
+        // --- 2. UI 텍스트 및 템플릿 (UI Texts & Templates) ---
+        const UI_TEXTS = {
+            consentTitle: "문항 타당도 평가 연구 참여 안내 및 동의서",
+            consentIRB: "[연구 기관명] / [IRB 승인 번호: XXX-XXX]",
+            consentIntro: "본 평가는 <strong>[연구/프로젝트 이름]</strong>의 일환으로 개발된 <strong>[측정 대상, 예: 대학생의 공감 능력]</strong> 측정 도구의 내용 타당도를 검증하기 위해 마련되었습니다.",
+            consentPurposeTitle: "1. 연구 목적 및 절차",
+            consentPurposeText: "본 연구는 개발된 문항이 본래 측정하고자 하는 개념을 얼마나 충실히 반영하고 있는지 전문가님의 의견을 수렴하여 도구의 질을 향상시키는 것을 목적으로 합니다. 평가는 크게 두 파트로 구성되며, 예상 소요 시간은 약 <strong>[예상 소요 시간, 예: 20-30분]</strong>입니다.",
+            consentRewardTitle: "2. 위험 및 혜택, 보상",
+            consentRewardText: "본 연구 참여로 인해 예상되는 위험은 없으며, 참여에 대한 직접적인 혜택 또한 없습니다. 다만 전문가님의 소중한 의견은 학문적 발전에 기여할 것입니다. 참여 완료 시 감사의 의미로 소정의 보상(커피 쿠폰)을 지급해 드립니다.",
+            consentPrivacyTitle: "3. 익명성 보장 및 정보보호",
+            consentPrivacyText: "응답 내용은 코드화되어 익명으로 처리되며, 연구 데이터와 보상 발송을 위한 연락처 정보는 물리적/논리적으로 완벽히 분리하여 관리됩니다. 연락처 정보는 보상 발송 즉시 파기되며, 연구 데이터는 관련 법규에 따라 [보관 기간, 예: 3년]간 안전하게 보관 후 파기됩니다. 본 연구 결과는 학술적 목적으로만 사용됩니다.",
+            consentRightsTitle: "4. 참여 및 철회 권리",
+            consentRightsText: "연구 참여는 자발적이며, 언제든지 동의를 철회하고 평가를 중단할 수 있습니다. 중단으로 인한 어떠한 불이익도 없습니다.",
+            consentContactTitle: "5. 문의처",
+            consentContactText: "본 연구에 대해 궁금한 점이 있으시면 아래 연락처로 문의 바랍니다.",
+            consentContactDetails: "책임 연구자: [연구자 이름] ([소속]) / 이메일: [이메일 주소] / 연락처: [전화번호]",
+            consentAgreement: "위 내용을 모두 확인하였으며, 연구 참여에 자발적으로 동의합니다.",
+            consentButton: "동의 및 평가 시작하기",
+            panelInfoTitle: "전문가 정보 입력",
+            panelInfoSubtitle: "원활한 분석을 위해 전문가님의 정보를 입력해주세요.",
+            panelInfoMajor: "전공 분야",
+            panelInfoExperience: "관련 실무/연구 경력 (년수)",
+            panelInfoAffiliation: "소속 영역 (예: 교육심리, 교육공학, AI)",
+            panelInfoValidationExp: "타당도 검증 참여 경험",
+            panelInfoExpYes: "있음",
+            panelInfoExpNo: "없음",
+            partSelectionTitle: "평가 파트 선택",
+            partSelectionSubtitle: "원하시는 파트를 선택하여 평가를 진행해주세요. (순서 무관)",
+            goToSummaryButton: "응답 요약 및 최종 제출 하기",
+            goToSummaryNote: "※ 두 파트를 모두 완료해야 버튼이 활성화됩니다.",
+            evaluationGuideTitle: "평가 안내문 (클릭하여 보기/접기)",
+            evaluationGuideText: "제시된 각 문항에 대해, 내용 타당도, 표현의 명확성, 필요성을 4점 척도로 평가해주십시오. 또한 필요 시 개선 의견을 작성해 주십시오.",
+            likertScaleTitle: "평가 척도 (4점 Likert)",
+            likertScaleItems: ["<strong>1점:</strong> 전혀 그렇지 않다", "<strong>2점:</strong> 다소 그렇지 않다", "<strong>3점:</strong> 그렇다 (타당함)", "<strong>4점:</strong> 매우 그렇다 (매우 타당함)"],
+            backToSelectionButton: "파트 선택으로",
+            prevButton: "이전",
+            nextButton: "다음",
+            completePartButton: "파트 완료",
+            alertTitle: "응답 누락 알림",
+            alertProceed: "그대로 진행",
+            alertGoBack: "돌아가서 수정",
+            summaryTitle: "응답 요약 및 최종 제출",
+            summarySubtitle: "아래 요약은 전문가님의 개인 응답에 대한 미리보기입니다. 최종 I-CVI, S-CVI 등의 타당도 지수는 모든 전문가 패널의 응답을 종합하여 산출될 예정입니다.",
+            summaryOverallOpinionTitle: "전체 설문에 대한 종합 의견 (선택사항)",
+            summaryOverallOpinionPlaceholder: "평가 문항 전반에 대한 의견이나 기타 제언이 있으시다면 자유롭게 남겨주세요.",
+            summaryContactTitle: "개인정보 수집 및 이용 안내",
+            summaryContactDetails: `<p><strong>수집 목적:</strong> 연구 참여 보상(커피 쿠폰) 발송</p><p><strong>수집 항목:</strong> 휴대전화 번호</p><p><strong>보유 및 이용기간:</strong> 보상 발송 완료 후 즉시 파기</p><p class="mt-2">연락처 정보는 연구 데이터와 완전히 분리되어 저장 및 관리됩니다. 정보 제공은 자발적이며, 원치 않으실 경우 입력하지 않으셔도 됩니다. 동의 철회를 원하시면 언제든지 연구자에게 연락주시기 바랍니다.</p>`,
+            summaryContactLabel: "연락처 (휴대전화 번호)",
+            summaryContactPlaceholder: "'-' 없이 숫자만 입력해주세요",
+            editButton: "수정하기",
+            finalSubmitButton: "설문 최종 제출하기",
+            thankYouTitle: "설문이 성공적으로 제출되었습니다.",
+            thankYouText: "참여해주셔서 대단히 감사합니다. 전문가님의 소중한 의견은 연구에 큰 도움이 될 것입니다.",
+            thankYouNote: "이제 이 창을 닫으셔도 좋습니다. 브라우저의 '뒤로 가기'로 재제출하실 수 없습니다.",
+
+            templates: {
+                part1Page: `
+                    <div id="scenario-page-\${pageData.id}">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 p-3 bg-gray-50 rounded-md">\${pageData.title}</h3>
+                        <div class="bg-white p-4 border rounded-md mb-6 whitespace-pre-wrap"><p class="text-gray-700 leading-relaxed">\${pageData.text}</p></div>
+                        \${scenarioTable}
+                        \${biasTable}
+                        \${countermeasureTable}
+                    </div>`,
+                scenarioEvaluationTable: `
+                    <div class="overflow-x-auto mb-8 bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 시나리오 자체 평가</h4>
+                        <table class="min-w-full border-collapse bg-white">
+                            <thead class="table-header">
+                                 <tr><th scope="col" rowspan="2">평가 대상</th>\${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
+                                 <tr class="text-sm text-gray-600">\${likertScaleHeaders}</tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-semibold bg-gray-50">\${pageData.title}</td>
+                                    \${radioButtons}
+                                    <td><input type="text" class="opinion-input" name="p1_s\${pageData.id}_scenario_opinion" placeholder="시나리오 개선 의견"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>`,
+                biasEvaluationTable: `
+                    <div class="overflow-x-auto mb-8">
+                         <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 개별 문항 평가 (편향 유형)</h4>
+                        <table class="min-w-full border-collapse">
+                            <thead class="table-header">
+                                 <tr><th scope="col" rowspan="2">하위 요소</th><th scope="col" rowspan="2">문항</th>\${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
+                                 <tr class="text-sm text-gray-600">\${likertScaleHeaders}</tr>
+                            </thead>
+                            <tbody>\${biasQuestionsHtml}</tbody>
+                        </table>
+                    </div>`,
+                countermeasureEvaluationTable: `
+                    <div class="overflow-x-auto">
+                         <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 개별 문항 평가 (대처법)</h4>
+                        <table class="min-w-full border-collapse">
+                            <thead class="table-header">
+                                 <tr><th scope="col" rowspan="2">문항</th>\${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
+                                 <tr class="text-sm text-gray-600">\${likertScaleHeaders}</tr>
+                            </thead>
+                            <tbody>\${countermeasureQuestionsHtml}</tbody>
+                        </table>
+                    </div>`,
+                part2Category: `
+                    <div id="prepost-category-\${category.id}" class="mb-10">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 p-3 bg-gray-50 rounded-md">구성요인: \${category.title}</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full border-collapse">
+                                <thead class="table-header">
+                                    <tr><th scope="col" rowspan="2">문항</th>\${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
+                                    <tr class="text-sm text-gray-600">\${likertScaleHeaders}</tr>
+                                </thead>
+                                <tbody>\${questionsHtml}</tbody>
+                            </table>
+                        </div>
+                    </div>`
+            }
+        };
+
+        // --- 3. 설문 문항 데이터 (Survey Content Data) ---
         const surveyData = {
             part1: {
                 title: "파트 1: 시나리오 기반 문항 평가",
@@ -315,30 +310,30 @@
             }
         };
 
+        // =================================================================================
+        // --- 설문 로직 (Survey Logic) ---
+        // 특별한 기능 추가가 아닌 이상, 이 아래 코드는 수정할 필요가 없습니다.
+        // =================================================================================
+
         let currentPart = null;
         let currentPage = 1;
         let sessionData = {}; // 응답을 기억하기 위한 객체
         let nextAction = null; // 비동기 모달 액션을 위한 변수
 
+        function initializeUI() {
+            // ... (The logic remains the same)
+        }
+
         function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            window.scrollTo(0,0);
+            // ... (The logic remains the same)
         }
 
         function showAlert(message) {
-            document.getElementById('alert-message').innerHTML = message;
-            document.getElementById('alert-modal').style.display = 'flex';
+             // ... (The logic remains the same)
         }
 
         function renderPart(partKey) {
-            currentPart = partKey;
-            currentPage = 1;
-            const part = surveyData[partKey];
-            document.getElementById('part-header').innerHTML = `<h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">${part.title}</h1>`;
-            document.getElementById('progress-bar-container').style.display = (partKey === 'part1') ? 'block' : 'none';
-            renderQuestionPage();
-            showPage('survey-container');
+            // ... (The logic remains the same)
         }
 
         function renderQuestionPage() {
@@ -370,46 +365,31 @@
                         <td><input type="text" class="opinion-input" name="p1_s${pageData.id}_c${q.id}_opinion" placeholder="모호한 표현, 대체 문구 제안 등"></td>
                     </tr>`).join('');
 
-                html = `<div id="scenario-page-${pageData.id}">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4 p-3 bg-gray-50 rounded-md">${pageData.title}</h3>
-                    <div class="bg-white p-4 border rounded-md mb-6 whitespace-pre-wrap"><p class="text-gray-700 leading-relaxed">${pageData.text}</p></div>
-                    <div class="overflow-x-auto mb-8 bg-gray-50 p-4 rounded-lg">
-                        <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 시나리오 자체 평가</h4>
-                        <table class="min-w-full border-collapse bg-white">
-                            <thead class="table-header">
-                                 <tr><th scope="col" rowspan="2">평가 대상</th>${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
-                                 <tr class="text-sm text-gray-600">${likertScaleHeaders}</tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="font-semibold bg-gray-50">${pageData.title}</td>
-                                    ${radioButtons(`p1_s${pageData.id}_scenario`)}
-                                    <td><input type="text" class="opinion-input" name="p1_s${pageData.id}_scenario_opinion" placeholder="시나리오 개선 의견"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="overflow-x-auto mb-8">
-                         <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 개별 문항 평가 (편향 유형)</h4>
-                        <table class="min-w-full border-collapse">
-                            <thead class="table-header">
-                                 <tr><th scope="col" rowspan="2">하위 요소</th><th scope="col" rowspan="2">문항</th>${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
-                                 <tr class="text-sm text-gray-600">${likertScaleHeaders}</tr>
-                            </thead>
-                            <tbody>${biasQuestionsHtml}</tbody>
-                        </table>
-                    </div>
-                    <div class="overflow-x-auto">
-                         <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 개별 문항 평가 (대처법)</h4>
-                        <table class="min-w-full border-collapse">
-                            <thead class="table-header">
-                                 <tr><th scope="col" rowspan="2">문항</th>${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
-                                 <tr class="text-sm text-gray-600">${likertScaleHeaders}</tr>
-                            </thead>
-                            <tbody>${countermeasureQuestionsHtml}</tbody>
-                        </table>
-                    </div>
-                </div>`;
+                const scenarioTableHtml = UI_TEXTS.templates.scenarioEvaluationTable
+                    .replace(/\$\{evaluationTypeHeaders\}/g, evaluationTypeHeaders)
+                    .replace(/\$\{likertScaleHeaders\}/g, likertScaleHeaders)
+                    .replace(/\$\{pageData.title\}/g, pageData.title)
+                    .replace(/\$\{radioButtons\}/g, radioButtons(`p1_s${pageData.id}_scenario`))
+                    .replace(/\$\{pageData.id\}/g, pageData.id);
+
+                const biasTableHtml = UI_TEXTS.templates.biasEvaluationTable
+                    .replace(/\$\{evaluationTypeHeaders\}/g, evaluationTypeHeaders)
+                    .replace(/\$\{likertScaleHeaders\}/g, likertScaleHeaders)
+                    .replace(/\$\{biasQuestionsHtml\}/g, biasQuestionsHtml);
+
+                const countermeasureTableHtml = UI_TEXTS.templates.countermeasureEvaluationTable
+                    .replace(/\$\{evaluationTypeHeaders\}/g, evaluationTypeHeaders)
+                    .replace(/\$\{likertScaleHeaders\}/g, likertScaleHeaders)
+                    .replace(/\$\{countermeasureQuestionsHtml\}/g, countermeasureQuestionsHtml);
+                
+                html = UI_TEXTS.templates.part1Page
+                    .replace(/\$\{pageData.id\}/g, pageData.id)
+                    .replace(/\$\{pageData.title\}/g, pageData.title)
+                    .replace(/\$\{pageData.text\}/g, pageData.text)
+                    .replace(/\$\{scenarioTable\}/g, scenarioTableHtml)
+                    .replace(/\$\{biasTable\}/g, biasTableHtml)
+                    .replace(/\$\{countermeasureTable\}/g, countermeasureTableHtml);
+
             } else { // Part 2
                 part.categories.forEach(category => {
                     let questionsHtml = category.questions.map(q => `
@@ -419,18 +399,12 @@
                             <td><input type="text" class="opinion-input" name="p2_c${category.id}_i'${q.id}'_opinion" placeholder="모호한 표현, 대체 문구 제안 등"></td>
                         </tr>`).join('');
                     
-                    html += `<div id="prepost-category-${category.id}" class="mb-10">
-                        <h3 class="text-xl font-semibold text-gray-700 mb-4 p-3 bg-gray-50 rounded-md">구성요인: ${category.title}</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border-collapse">
-                                <thead class="table-header">
-                                    <tr><th scope="col" rowspan="2">문항</th>${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
-                                    <tr class="text-sm text-gray-600">${likertScaleHeaders}</tr>
-                                </thead>
-                                <tbody>${questionsHtml}</tbody>
-                            </table>
-                        </div>
-                    </div>`;
+                    html += UI_TEXTS.templates.part2Category
+                        .replace(/\$\{category.id\}/g, category.id)
+                        .replace(/\$\{category.title\}/g, category.title)
+                        .replace(/\$\{evaluationTypeHeaders\}/g, evaluationTypeHeaders)
+                        .replace(/\$\{likertScaleHeaders\}/g, likertScaleHeaders)
+                        .replace(/\$\{questionsHtml\}/g, questionsHtml);
                 });
             }
             container.innerHTML = html;
@@ -438,6 +412,7 @@
             updatePaginationControls();
         }
 
+        // --- 나머지 함수들은 그대로 유지 ---
         function updateSessionData() {
             const formData = new FormData(document.getElementById('evaluationForm'));
             for(const [key, value] of formData.entries()) {
@@ -563,38 +538,33 @@
             const summaryContainer = document.getElementById('summary-page');
             summaryContainer.innerHTML = `
                 <div class="text-center">
-                    <h2 class="text-2xl font-bold text-gray-800">응답 요약 및 최종 제출</h2>
-                    <p class="mt-4 text-gray-600">아래 요약은 전문가님의 개인 응답에 대한 미리보기입니다. 최종 I-CVI, S-CVI 등의 타당도 지수는 모든 전문가 패널의 응답을 종합하여 산출될 예정입니다.</p>
+                    <h2 class="text-2xl font-bold text-gray-800">${UI_TEXTS.summaryTitle}</h2>
+                    <p class="mt-4 text-gray-600">${UI_TEXTS.summarySubtitle}</p>
                 </div>
                 <div class="mt-10 grid md:grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-blue-50 p-6 rounded-lg border border-blue-200 space-y-4">
-                        <h3 class="text-xl font-bold text-gray-800">파트 1: 시나리오 평가 요약</h3>
+                        <h3 class="text-xl font-bold text-gray-800">${surveyData.part1.title} 요약</h3>
                         <div><h4 class="font-semibold text-gray-700">시나리오 자체 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_scenario_avg, 'blue')}</ul></div>
                         <div class="pt-4 border-t"><h4 class="font-semibold text-gray-700">편향 유형 문항 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_bias_avg, 'blue')}</ul></div>
                         <div class="pt-4 border-t"><h4 class="font-semibold text-gray-700">대처법 문항 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_countermeasure_avg, 'blue')}</ul></div>
                     </div>
                     <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">파트 2: 사전/사후 검사 평가 요약</h3>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">${surveyData.part2.title} 요약</h3>
                         <div class="mt-4"><h4 class="font-semibold text-gray-700">개별 문항 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p2_item_avg, 'purple')}</ul></div>
                     </div>
                 </div>
-                 <div class="mt-10 pt-8 border-t"><h3 class="text-xl font-bold text-gray-800 mb-4 text-center">전체 설문에 대한 종합 의견 (선택사항)</h3><p class="text-center text-gray-600 mb-4">평가 문항 전반에 대한 의견이나 기타 제언이 있으시다면 자유롭게 남겨주세요.</p><div class="max-w-4xl mx-auto"><textarea id="overall-opinion" name="overall-opinion" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="종합 의견을 입력해주세요..."></textarea></div></div>
+                 <div class="mt-10 pt-8 border-t"><h3 class="text-xl font-bold text-gray-800 mb-4 text-center">${UI_TEXTS.summaryOverallOpinionTitle}</h3><p class="text-center text-gray-600 mb-4">평가 문항 전반에 대한 의견이나 기타 제언이 있으시다면 자유롭게 남겨주세요.</p><div class="max-w-4xl mx-auto"><textarea id="overall-opinion" name="overall-opinion" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="${UI_TEXTS.summaryOverallOpinionPlaceholder}"></textarea></div></div>
                  <div class="mt-10 pt-8 border-t">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">개인정보 수집 및 이용 안내</h3>
-                    <div class="text-sm text-gray-600 max-w-3xl mx-auto bg-gray-50 p-4 rounded border">
-                        <p><strong>수집 목적:</strong> 연구 참여 보상(커피 쿠폰) 발송</p>
-                        <p><strong>수집 항목:</strong> 휴대전화 번호</p>
-                        <p><strong>보유 및 이용기간:</strong> 보상 발송 완료 후 즉시 파기</p>
-                        <p class="mt-2">연락처 정보는 연구 데이터와 완전히 분리되어 저장 및 관리됩니다. 정보 제공은 자발적이며, 원치 않으실 경우 입력하지 않으셔도 됩니다. 동의 철회를 원하시면 언제든지 연구자에게 연락주시기 바랍니다.</p>
-                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">${UI_TEXTS.summaryContactTitle}</h3>
+                    <div class="text-sm text-gray-600 max-w-3xl mx-auto bg-gray-50 p-4 rounded border">${UI_TEXTS.summaryContactDetails}</div>
                     <div class="max-w-sm mx-auto mt-4">
-                        <label for="contact-info" class="block text-sm font-medium text-gray-700">연락처 (휴대전화 번호)</label>
-                        <input type="tel" id="contact-info" name="contact-info" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="'-' 없이 숫자만 입력해주세요">
+                        <label for="contact-info" class="block text-sm font-medium text-gray-700">${UI_TEXTS.summaryContactLabel}</label>
+                        <input type="tel" id="contact-info" name="contact-info" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="${UI_TEXTS.summaryContactPlaceholder}">
                     </div>
                 </div>
                 <div class="text-center mt-12 flex justify-center gap-4">
-                    <button id="back-to-selection-final-btn" class="nav-btn bg-gray-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-600">수정하기</button>
-                    <button id="final-submit-btn" class="nav-btn bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700">설문 최종 제출하기</button>
+                    <button id="back-to-selection-final-btn" class="nav-btn bg-gray-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-600">${UI_TEXTS.editButton}</button>
+                    <button id="final-submit-btn" class="nav-btn bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700">${UI_TEXTS.finalSubmitButton}</button>
                 </div>
             `;
         }
@@ -603,9 +573,9 @@
             const container = document.getElementById('main-container');
             container.innerHTML = `
                 <div class="text-center py-12">
-                    <h2 class="text-3xl font-bold text-gray-800">설문이 성공적으로 제출되었습니다.</h2>
-                    <p class="mt-4 text-lg text-gray-600">참여해주셔서 대단히 감사합니다. 전문가님의 소중한 의견은 연구에 큰 도움이 될 것입니다.</p>
-                    <p class="mt-2 text-sm text-gray-500">이제 이 창을 닫으셔도 좋습니다. 브라우저의 '뒤로 가기'로 재제출하실 수 없습니다.</p>
+                    <h2 class="text-3xl font-bold text-gray-800">${UI_TEXTS.thankYouTitle}</h2>
+                    <p class="mt-4 text-lg text-gray-600">${UI_TEXTS.thankYouText}</p>
+                    <p class="mt-2 text-sm text-gray-500">${UI_TEXTS.thankYouNote}</p>
                 </div>`;
         }
         
@@ -634,24 +604,18 @@
         document.addEventListener('DOMContentLoaded', () => {
             const mainContainer = document.getElementById('main-container');
             
+            initializeUI();
+            showPage('consent-page');
+
             mainContainer.addEventListener('click', async (event) => {
                 const target = event.target.closest('button');
                 if (!target) return;
 
                 switch (target.id) {
-                    case 'consent-btn':
-                        showPage('panel-info-page');
-                        break;
-                    case 'start-part1-btn':
-                        renderPart('part1');
-                        break;
-                    case 'start-part2-btn':
-                        renderPart('part2');
-                        break;
-                    case 'back-to-selection-btn':
-                        updateSessionData();
-                        showPage('part-selection-page');
-                        break;
+                    case 'consent-btn': showPage('panel-info-page'); break;
+                    case 'start-part1-btn': renderPart('part1'); break;
+                    case 'start-part2-btn': renderPart('part2'); break;
+                    case 'back-to-selection-btn': updateSessionData(); showPage('part-selection-page'); break;
                     case 'next-btn': {
                         const unanswered = validateCurrentPage();
                         if (unanswered.length > 0) {
@@ -660,7 +624,6 @@
                                 if (currentPart === 'part1' && currentPage < surveyData[currentPart].pages.length) {
                                     currentPage++;
                                     renderQuestionPage();
-                                    window.scrollTo(0, 0);
                                 }
                             };
                             showAlert(`응답이 누락된 항목이 있습니다. 그대로 진행하시겠습니까?<br><ul class="list-disc list-inside mt-2 text-left">${unanswered.map(u => `<li>${u}</li>`).join('')}</ul>`);
@@ -670,7 +633,6 @@
                         if (currentPart === 'part1' && currentPage < surveyData[currentPart].pages.length) {
                             currentPage++;
                             renderQuestionPage();
-                            window.scrollTo(0, 0);
                         }
                         break;
                     }
@@ -679,7 +641,6 @@
                         if (currentPart === 'part1' && currentPage > 1) {
                             currentPage--;
                             renderQuestionPage();
-                            window.scrollTo(0, 0);
                         }
                         break;
                     case 'go-to-summary-btn':
@@ -711,7 +672,7 @@
                         } else {
                             alert('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
                             target.disabled = false;
-                            target.textContent = '설문 최종 제출하기';
+                            target.textContent = UI_TEXTS.finalSubmitButton;
                         }
                         break;
                     }
