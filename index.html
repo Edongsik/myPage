@@ -212,9 +212,12 @@
                     <div class="mt-2 px-7 py-3">
                         <p class="text-sm text-gray-500" id="alert-message"></p>
                     </div>
-                    <div class="items-center px-4 py-3">
-                        <button id="close-alert-btn" class="px-4 py-2 bg-indigo-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                            확인
+                    <div class="items-center px-4 py-3 space-y-2 sm:space-y-0 sm:flex sm:flex-row-reverse sm:space-x-2 sm:space-x-reverse">
+                        <button id="alert-proceed-btn" class="w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700">
+                            그대로 진행
+                        </button>
+                        <button id="alert-close-btn" class="w-full sm:w-auto mt-2 sm:mt-0 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50">
+                            돌아가서 수정
                         </button>
                     </div>
                 </div>
@@ -241,14 +244,54 @@
                 title: "파트 1: 시나리오 기반 문항 평가",
                 completed: false,
                 pages: [
-                    { id: 1, title: '시나리오 1: 사실 오류', text: "세계보건기구(WHO)는 '글로벌 수분 보충 이니셔티브(Global Hydration Initiative)' 보고서를 통해 모든 성인은 신체 기능 유지를 위해 매일 최소 3리터의 물을 섭취하는 것이 절대적으로 필수적이라고 명시하고 있습니다.", questions: [ { id: 1, subFactor: "프레이밍 효과", text: "'절대적/필수적' 같은 표현으로 강력한 사실처럼 포장한다" }, { id: 2, subFactor: "맹신 편향", text: "'WHO'와 가짜 보고서 이름을 내세워 비판 없이 믿게 한다" }, { id: 3, subFactor: "일반화 오류", text: "일부 권장사항을 모든 사람에게 적용한다" }, { id: 4, subFactor: "정박 효과", text: "'3리터'라는 숫자에 판단이 고정된다" } ] },
-                    { id: 2, title: '시나리오 2: 인용 오류', text: "스탠포드 대학 연구진이 2023년 'Cognitive Science' 저널에 발표한 논문에 따르면, 5세 이전에 제2외국어에 노출된 아이들은 그렇지 않은 아이들보다 문제 해결 능력이 평균 30% 높게 나타났습니다. (논문 DOI나 링크 없음)", questions: [ { id: 1, subFactor: "맹신 편향", text: "'스탠포드/저널' 등 권위를 이용해 사실처럼 믿게 한다" }, { id: 2, subFactor: "정박 효과", text: "'30%'라는 숫자에 판단이 고정된다" }, { id: 3, subFactor: "프레이밍 효과", text: "그럴듯한 출처를 제시하는 방식으로 신뢰도를 높인다" }, { id: 4, subFactor: "일반화 오류", text: "특정 연구 결과를 모든 아동에게 적용한다" } ] },
-                    { id: 3, title: '시나리오 3: 수치 왜곡', text: "자체 데이터 분석팀의 최신 보고서에 따르면, 새로 출시된 'AI 숏폼' 기능의 사용자 참여율이 도입 첫 주 만에 300% 폭증했습니다. 이는 이번 업데이트가 전례 없는 성공을 거두었음을 명백히 보여줍니다.", questions: [ { id: 1, subFactor: "정박 효과", text: "'+300%'라는 극적인 첫 숫자에 생각이 묶여, 업데이트가 엄청난 성공을 거두었다고 판단하게 한다" }, { id: 2, subFactor: "프레이밍 효과", text: "'폭증'이라는 긍정적이고 과장된 표현으로 성공이라는 틀을 씌운다" }, { id: 3, subFactor: "맹신 편향", text: "'자체 데이터 분석팀'이라는 출처에 비판 없이 수용하게 된다" }, { id: 4, subFactor: "일반화 오류", text: "'첫 주'의 성과를 전체의 성공인 것처럼 확대한다" } ] },
-                    { id: 4, title: '시나리오 4: 논리 오류', text: "최근 한 기술 블로그(TechDev Journal)에 공유된 비공식 설문조사 결과, 명상을 시작한 개발자 중 80% 이상이 '코딩 집중력이 향상되었다'고 응답했습니다. 따라서 명상은 IT 전문가의 생산성을 높이는 검증된 방법이라고 할 수 있습니다.", questions: [ { id: 1, subFactor: "일반화 오류", text: "'비공식 설문' 결과를 '검증된 방법'이라고 비약한다" }, { id: 2, subFactor: "맹신 편향", text: "'기술 블로그'라는 출처를 인용하여, 주장을 사실처럼 믿게 한다" }, { id: 3, subFactor: "정박 효과", text: "'80%'라는 숫자에 판단이 고정된다" }, { id: 4, subFactor: "프레이밍 효과", text: "개인적인 일화를 통해 설득력있게 포장한다" } ] },
-                    { id: 5, title: '시나리오 5: 요약 왜곡', text: "원문: 'A 후보자는 해당 정책이 일부 긍정적 효과를 가질 수 있으나, 재정적 부담과 잠재적 부작용에 대한 추가적인 사회적 합의와 신중한 검토가 선행되어야 한다'며 유보적인 입장을 보였다.'\n\nAI 요약: A 후보자는 해당 정책 도입이 재정적 문제를 야기할 것이라며 강력히 반대했습니다.", questions: [ { id: 1, subFactor: "프레이밍 효과", text: "'강력 반대'라는 부정적 표현으로 인식을 바꾼다" }, { id: 2, subFactor: "맹신 편향", text: "AI가 요약했다는 사실 자체로, 내용이 정확할 것이라는 믿음을 갖게 한다" }, { id: 3, subFactor: "일반화 오류", text: "후보자의 한 가지 발언을 전체 입장으로 확대한다" }, { id: 4, subFactor: "정박 효과", text: "'강력 반대'라는 첫 요약에 판단이 고정된다" } ] },
-                    { id: 6, title: '시나리오 6: 개체/시간 오류', text: "애플의 창업자 빌 게이츠는 1984년, 혁신적인 아이팟을 출시하며 '주머니 속의 1000곡'이라는 시대를 열었습니다.", questions: [ { id: 1, subFactor: "맹신 편향", text: "유명한 이름(애플, 빌 게이츠)을 섞어 의심 없이 믿게 한다" }, { id: 2, subFactor: "프레이밍 효과", text: "그럴듯한 이야기 형식으로 정보를 전달해 신뢰를 높인다" }, { id: 3, subFactor: "일반화 오류", text: "빌 게이츠가 IT업계 거물이니 애플도 만들었을 거라 생각한다" }, { id: 4, subFactor: "정박 효과", text: "'1984년'이라는 구체적 연도에 현혹되어 사실로 믿는다" } ] },
-                    { id: 7, title: '시나리오 7: 구식 정보', text: "최신 고사양 PC를 맞추기 위한 그래픽 카드를 찾고 계신가요? 현재 시장 상황을 종합 분석한 결과, 엔비디아의 RTX 3080이 가장 합리적인 '성능 대비 가격'을 제공하는 최고의 선택입니다. 4K 게이밍 환경을 완벽하게 지원합니다.", questions: [ { id: 1, subFactor: "일반화 오류", text: "과거의 최고 제품이 '현재'도 최고일 거라 착각하게 한다" }, { id: 2, subFactor: "맹신 편향", text: "AI가 '종합 분석'했다고 표현하여, 추천 내용이 현재에도 유효할 것이라는 믿음을 준다" }, { id: 3, subFactor: "정박 효과", text: "'RTX 3080'이라는 유명 모델명에 판단이 고정된다" }, { id: 4, subFactor: "프레이밍 효과", text: "'최고의 선택'이라는 표현으로 장점만 보게 한다" } ] },
-                    { id: 8, title: '시나리오 8: 상호작용 오류', text: "사용자 요청: '기후 변화의 원인에 대한 과학적 합의를 설명하되, '인간 활동'이라는 단어는 사용하지 말고 세 문장으로 요약해줘.'\n\nAI 답변: 기후 변화는 산업 혁명 이후 대기 중 온실가스 농도가 급격히 증가하면서 발생했습니다. 이러한 가스는 지구의 평균 기온을 상승시키는 주된 요인으로 작용합니다. 따라서 인간 활동이 기후 변화의 핵심 원인이라는 점은 명백합니다.", questions: [ { id: 1, subFactor: "맹신 편향", text: "그럴듯한 결과물을 생성해, 제약 조건 준수 여부를 확인하지 않고 믿게 한다" }, { id: 2, subFactor: "프레이밍 효과", text: "답변 내용이 그럴듯해서 제약을 어긴 것을 눈치채지 못한다" }, { id: 3, subFactor: "일반화 오류", text: "AI가 보통은 말을 잘 들으니 이번에도 그랬을 거라 생각한다" }, { id: 4, subFactor: "정박 효과", text: "첫 문장이 요청대로 시작해서 끝까지 확인하지 않는다" } ] }
+                    { id: 1, title: '시나리오 1: 사실 오류', text: "세계보건기구(WHO)는 '글로벌 수분 보충 이니셔티브(Global Hydration Initiative)' 보고서를 통해 모든 성인은 신체 기능 유지를 위해 매일 최소 3리터의 물을 섭취하는 것이 절대적으로 필수적이라고 명시하고 있습니다.", 
+                        questions: { 
+                            bias: [ { id: 1, subFactor: "프레이밍 효과", text: "'절대적/필수적' 같은 표현으로 강력한 사실처럼 포장한다" }, { id: 2, subFactor: "맹신 편향", text: "'WHO'와 가짜 보고서 이름을 내세워 비판 없이 믿게 한다" }, { id: 3, subFactor: "일반화 오류", text: "일부 권장사항을 모든 사람에게 적용한다" }, { id: 4, subFactor: "정박 효과", text: "'3리터'라는 숫자에 판단이 고정된다" } ],
+                            countermeasure: [ { id: 1, text: "공식/1차 출처로 사실 확인(팩트체크)", isCorrect: true }, { id: 2, text: "구글 스칼라/DOI로 실재 여부 검증"}, { id: 3, text: "대조군·혼입요인 점검"}, { id: 4, text: "정의·표본·기간을 묻고 원자료와 비교"} ]
+                        } 
+                    },
+                    { id: 2, title: '시나리오 2: 인용 오류', text: "스탠포드 대학 연구진이 2023년 'Cognitive Science' 저널에 발표한 논문에 따르면, 5세 이전에 제2외국어에 노출된 아이들은 그렇지 않은 아이들보다 문제 해결 능력이 평균 30% 높게 나타났습니다. (논문 DOI나 링크 없음)", 
+                        questions: {
+                            bias: [ { id: 1, subFactor: "맹신 편향", text: "'스탠포드/저널' 등 권위를 이용해 사실처럼 믿게 한다" }, { id: 2, subFactor: "정박 효과", text: "'30%'라는 숫자에 판단이 고정된다" }, { id: 3, subFactor: "프레이밍 효과", text: "그럴듯한 출처를 제시하는 방식으로 신뢰도를 높인다" }, { id: 4, subFactor: "일반화 오류", text: "특정 연구 결과를 모든 아동에게 적용한다" } ],
+                            countermeasure: [ { id: 1, text: "구글 스칼라/DOI로 실재 여부 검증 후 원문 대조", isCorrect: true }, { id: 2, text: "위키/백과로 이름-사실 매칭 재확인"}, { id: 3, text: "제조사·공식 공지로 최신성 검증"}, { id: 4, text: "공식/1차 출처로 사실 확인(팩트체크)"} ]
+                        }
+                    },
+                    { id: 3, title: '시나리오 3: 수치 왜곡', text: "자체 데이터 분석팀의 최신 보고서에 따르면, 새로 출시된 'AI 숏폼' 기능의 사용자 참여율이 도입 첫 주 만에 300% 폭증했습니다. 이는 이번 업데이트가 전례 없는 성공을 거두었음을 명백히 보여줍니다.", 
+                        questions: {
+                            bias: [ { id: 1, subFactor: "정박 효과", text: "'+300%'라는 극적인 첫 숫자에 생각이 묶여, 업데이트가 엄청난 성공을 거두었다고 판단하게 한다" }, { id: 2, subFactor: "프레이밍 효과", text: "'폭증'이라는 긍정적이고 과장된 표현으로 성공이라는 틀을 씌운다" }, { id: 3, subFactor: "맹신 편향", text: "'자체 데이터 분석팀'이라는 출처에 비판 없이 수용하게 된다" }, { id: 4, subFactor: "일반화 오류", text: "'첫 주'의 성과를 전체의 성공인 것처럼 확대한다" } ],
+                            countermeasure: [ { id: 1, text: "정의·표본·기간을 묻고 원자료/공식 통계와 비교", isCorrect: true }, { id: 2, text: "대조군·혼입요인 점검"}, { id: 3, text: "원문 문장 일부라도 샘플링 확인"}, { id: 4, text: "조건을 짧고 긍정형으로 재지시"} ]
+                        }
+                    },
+                    { id: 4, title: '시나리오 4: 논리 오류', text: "최근 한 기술 블로그(TechDev Journal)에 공유된 비공식 설문조사 결과, 명상을 시작한 개발자 중 80% 이상이 '코딩 집중력이 향상되었다'고 응답했습니다. 따라서 명상은 IT 전문가의 생산성을 높이는 검증된 방법이라고 할 수 있습니다.", 
+                        questions: {
+                            bias: [ { id: 1, subFactor: "일반화 오류", text: "'비공식 설문' 결과를 '검증된 방법'이라고 비약한다" }, { id: 2, subFactor: "맹신 편향", text: "'기술 블로그'라는 출처를 인용하여, 주장을 사실처럼 믿게 한다" }, { id: 3, subFactor: "정박 효과", text: "'80%'라는 숫자에 판단이 고정된다" }, { id: 4, subFactor: "프레이밍 효과", text: "개인적인 일화를 통해 설득력있게 포장한다" } ],
+                            countermeasure: [ { id: 1, text: "대조군·혼입요인 점검(다른 원인, 전체 추세 확인)", isCorrect: true }, { id: 2, text: "공식/1차 출처로 사실 확인(팩트체크)"}, { id: 3, text: "구글 스칼라/DOI로 실재 여부 검증"}, { id: 4, text: "발행일/버전 확인"} ]
+                        }
+                    },
+                    { id: 5, title: '시나리오 5: 요약 왜곡', text: "원문: 'A 후보자는 해당 정책이 일부 긍정적 효과를 가질 수 있으나, 재정적 부담과 잠재적 부작용에 대한 추가적인 사회적 합의와 신중한 검토가 선행되어야 한다'며 유보적인 입장을 보였다.'\n\nAI 요약: A 후보자는 해당 정책 도입이 재정적 문제를 야기할 것이라며 강력히 반대했습니다.", 
+                        questions: {
+                            bias: [ { id: 1, subFactor: "프레이밍 효과", text: "'강력 반대'라는 부정적 표현으로 인식을 바꾼다" }, { id: 2, subFactor: "맹신 편향", text: "AI가 요약했다는 사실 자체로, 내용이 정확할 것이라는 믿음을 갖게 한다" }, { id: 3, subFactor: "일반화 오류", text: "후보자의 한 가지 발언을 전체 입장으로 확대한다" }, { id: 4, subFactor: "정박 효과", text: "'강력 반대'라는 첫 요약에 판단이 고정된다" } ],
+                            countermeasure: [ { id: 1, text: "요약만 보지 말고 원문 문장 일부라도 샘플링 확인", isCorrect: true }, { id: 2, text: "조건을 짧고 긍정형으로 재지시"}, { id: 3, text: "공식/1차 출처로 사실 확인(팩트체크)"}, { id: 4, text: "대조군·혼입요인 점검"} ]
+                        }
+                    },
+                    { id: 6, title: '시나리오 6: 개체/시간 오류', text: "애플의 창업자 빌 게이츠는 1984년, 혁신적인 아이팟을 출시하며 '주머니 속의 1000곡'이라는 시대를 열었습니다.", 
+                        questions: {
+                            bias: [ { id: 1, subFactor: "맹신 편향", text: "유명한 이름(애플, 빌 게이츠)을 섞어 의심 없이 믿게 한다" }, { id: 2, subFactor: "프레이밍 효과", text: "그럴듯한 이야기 형식으로 정보를 전달해 신뢰를 높인다" }, { id: 3, subFactor: "일반화 오류", text: "빌 게이츠가 IT업계 거물이니 애플도 만들었을 거라 생각한다" }, { id: 4, subFactor: "정박 효과", text: "'1984년'이라는 구체적 연도에 현혹되어 사실로 믿는다" } ],
+                            countermeasure: [ { id: 1, text: "위키/백과·공식 연혁으로 이름–사실 매칭 재확인", isCorrect: true }, { id: 2, text: "구글 스칼라/DOI로 실재 여부 검증"}, { id: 3, text: "요약만 보지 말고 원문 샘플링 확인"}, { id: 4, text: "발행일/버전 확인"} ]
+                        }
+                    },
+                    { id: 7, title: '시나리오 7: 구식 정보', text: "최신 고사양 PC를 맞추기 위한 그래픽 카드를 찾고 계신가요? 현재 시장 상황을 종합 분석한 결과, 엔비디아의 RTX 3080이 가장 합리적인 '성능 대비 가격'을 제공하는 최고의 선택입니다. 4K 게이밍 환경을 완벽하게 지원합니다.", 
+                        questions: {
+                            bias: [ { id: 1, subFactor: "일반화 오류", text: "과거의 최고 제품이 '현재'도 최고일 거라 착각하게 한다" }, { id: 2, subFactor: "맹신 편향", text: "AI가 '종합 분석'했다고 표현하여, 추천 내용이 현재에도 유효할 것이라는 믿음을 준다" }, { id: 3, subFactor: "정박 효과", text: "'RTX 3080'이라는 유명 모델명에 판단이 고정된다" }, { id: 4, subFactor: "프레이밍 효과", text: "'최고의 선택'이라는 표현으로 장점만 보게 한다" } ],
+                            countermeasure: [ { id: 1, text: "발행일/버전 확인, 제조사·공식 공지로 최신성 검증", isCorrect: true }, { id: 2, text: "위키/백과로 이름-사실 매칭 재확인"}, { id: 3, text: "대조군·혼입요인 점검"}, { id: 4, text: "공식/1차 출처로 사실 확인(팩트체크)"} ]
+                        }
+                    },
+                    { id: 8, title: '시나리오 8: 상호작용 오류', text: "사용자 요청: '기후 변화의 원인에 대한 과학적 합의를 설명하되, '인간 활동'이라는 단어는 사용하지 말고 세 문장으로 요약해줘.'\n\nAI 답변: 기후 변화는 산업 혁명 이후 대기 중 온실가스 농도가 급격히 증가하면서 발생했습니다. 이러한 가스는 지구의 평균 기온을 상승시키는 주된 요인으로 작용합니다. 따라서 인간 활동이 기후 변화의 핵심 원인이라는 점은 명백합니다.", 
+                        questions: {
+                            bias: [ { id: 1, subFactor: "맹신 편향", text: "그럴듯한 결과물을 생성해, 제약 조건 준수 여부를 확인하지 않고 믿게 한다" }, { id: 2, subFactor: "프레이밍 효과", text: "답변 내용이 그럴듯해서 제약을 어긴 것을 눈치채지 못한다" }, { id: 3, subFactor: "일반화 오류", text: "AI가 보통은 말을 잘 들으니 이번에도 그랬을 거라 생각한다" }, { id: 4, subFactor: "정박 효과", text: "첫 문장이 요청대로 시작해서 끝까지 확인하지 않는다" } ],
+                            countermeasure: [ { id: 1, text: "조건을 짧고 긍정형으로 재지시, 결과를 체크리스트로 검수", isCorrect: true }, { id: 2, text: "요약만 보지 말고 원문 샘플링 확인"}, { id: 3, text: "발행일/버전 확인"}, { id: 4, text: "구글 스칼라/DOI로 실재 여부 검증"} ]
+                        }
+                    }
                 ]
             },
             part2: {
@@ -275,6 +318,7 @@
         let currentPart = null;
         let currentPage = 1;
         let sessionData = {}; // 응답을 기억하기 위한 객체
+        let nextAction = null; // 비동기 모달 액션을 위한 변수
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -308,12 +352,22 @@
 
             if (currentPart === 'part1') {
                 const pageData = part.pages[currentPage - 1];
-                let questionsHtml = pageData.questions.map(q => `
+                let biasQuestionsHtml = pageData.questions.bias.map(q => `
                     <tr>
                         <td class="font-semibold">${q.subFactor}</td>
                         <td class="question-text">${q.text}</td>
-                        ${radioButtons(`p1_s${pageData.id}_i${q.id}`)}
-                        <td><input type="text" class="opinion-input" name="p1_s${pageData.id}_i${q.id}_opinion" placeholder="모호한 표현, 대체 문구 제안 등"></td>
+                        ${radioButtons(`p1_s${pageData.id}_b${q.id}`)}
+                        <td><input type="text" class="opinion-input" name="p1_s${pageData.id}_b${q.id}_opinion" placeholder="모호한 표현, 대체 문구 제안 등"></td>
+                    </tr>`).join('');
+                
+                let countermeasureQuestionsHtml = pageData.questions.countermeasure.map(q => `
+                    <tr class="${q.isCorrect ? 'bg-green-50' : ''}">
+                        <td class="question-text">
+                            ${q.text}
+                            ${q.isCorrect ? '<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">정답</span>' : ''}
+                        </td>
+                        ${radioButtons(`p1_s${pageData.id}_c${q.id}`)}
+                        <td><input type="text" class="opinion-input" name="p1_s${pageData.id}_c${q.id}_opinion" placeholder="모호한 표현, 대체 문구 제안 등"></td>
                     </tr>`).join('');
 
                 html = `<div id="scenario-page-${pageData.id}">
@@ -335,18 +389,28 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="overflow-x-auto">
-                         <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 개별 문항 평가</h4>
+                    <div class="overflow-x-auto mb-8">
+                         <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 개별 문항 평가 (편향 유형)</h4>
                         <table class="min-w-full border-collapse">
                             <thead class="table-header">
                                  <tr><th scope="col" rowspan="2">하위 요소</th><th scope="col" rowspan="2">문항</th>${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
                                  <tr class="text-sm text-gray-600">${likertScaleHeaders}</tr>
                             </thead>
-                            <tbody>${questionsHtml}</tbody>
+                            <tbody>${biasQuestionsHtml}</tbody>
+                        </table>
+                    </div>
+                    <div class="overflow-x-auto">
+                         <h4 class="text-lg font-semibold text-gray-800 mb-3 text-left pl-1">※ 개별 문항 평가 (대처법)</h4>
+                        <table class="min-w-full border-collapse">
+                            <thead class="table-header">
+                                 <tr><th scope="col" rowspan="2">문항</th>${evaluationTypeHeaders}<th scope="col" rowspan="2">의견</th></tr>
+                                 <tr class="text-sm text-gray-600">${likertScaleHeaders}</tr>
+                            </thead>
+                            <tbody>${countermeasureQuestionsHtml}</tbody>
                         </table>
                     </div>
                 </div>`;
-            } else {
+            } else { // Part 2
                 part.categories.forEach(category => {
                     let questionsHtml = category.questions.map(q => `
                         <tr>
@@ -457,7 +521,7 @@
 
         function displaySummary(data) {
             const summaryData = {};
-            ['p1_scenario', 'p1_item', 'p2_item'].forEach(part => {
+            ['p1_scenario', 'p1_bias', 'p1_countermeasure', 'p2_item'].forEach(part => {
                 summaryData[part] = {};
                 config.evaluationTypes.forEach(type => summaryData[part][type.key] = []);
             });
@@ -465,16 +529,17 @@
             for (const key in data.responses) {
                 const val = parseInt(data.responses[key]);
                 if (isNaN(val)) continue;
-                
-                const keyParts = key.split('_');
-                const partPrefix = keyParts[0]; // p1 or p2
-                const itemType = key.includes('_scenario_') ? 'scenario' : 'item';
-                const fullPartKey = `${partPrefix}_${itemType}`;
 
-                if (summaryData[fullPartKey]) {
+                let partKey = null;
+                if (key.startsWith('p1_s') && key.includes('_scenario_')) partKey = 'p1_scenario';
+                else if (key.startsWith('p1_s') && key.includes('_b')) partKey = 'p1_bias';
+                else if (key.startsWith('p1_s') && key.includes('_c')) partKey = 'p1_countermeasure';
+                else if (key.startsWith('p2_c')) partKey = 'p2_item';
+
+                if (partKey) {
                     for (const type of config.evaluationTypes) {
                         if (key.endsWith(type.key)) {
-                            summaryData[fullPartKey][type.key].push(val);
+                            summaryData[partKey][type.key].push(val);
                             break;
                         }
                     }
@@ -483,10 +548,11 @@
 
             const calculateAvg = (arr) => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2) : 'N/A';
             
-            const p1_scenario_avg = {}, p1_item_avg = {}, p2_item_avg = {};
+            const p1_scenario_avg = {}, p1_bias_avg = {}, p1_countermeasure_avg = {}, p2_item_avg = {};
             config.evaluationTypes.forEach(type => {
                 p1_scenario_avg[type.key] = calculateAvg(summaryData.p1_scenario[type.key]);
-                p1_item_avg[type.key] = calculateAvg(summaryData.p1_item[type.key]);
+                p1_bias_avg[type.key] = calculateAvg(summaryData.p1_bias[type.key]);
+                p1_countermeasure_avg[type.key] = calculateAvg(summaryData.p1_countermeasure[type.key]);
                 p2_item_avg[type.key] = calculateAvg(summaryData.p2_item[type.key]);
             });
             
@@ -501,10 +567,11 @@
                     <p class="mt-4 text-gray-600">아래 요약은 전문가님의 개인 응답에 대한 미리보기입니다. 최종 I-CVI, S-CVI 등의 타당도 지수는 모든 전문가 패널의 응답을 종합하여 산출될 예정입니다.</p>
                 </div>
                 <div class="mt-10 grid md:grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">파트 1: 시나리오 평가 요약</h3>
-                        <div class="mt-4"><h4 class="font-semibold text-gray-700">시나리오 자체 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_scenario_avg, 'blue')}</ul></div>
-                        <div class="mt-6 pt-4 border-t"><h4 class="font-semibold text-gray-700">개별 문항 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_item_avg, 'blue')}</ul></div>
+                    <div class="bg-blue-50 p-6 rounded-lg border border-blue-200 space-y-4">
+                        <h3 class="text-xl font-bold text-gray-800">파트 1: 시나리오 평가 요약</h3>
+                        <div><h4 class="font-semibold text-gray-700">시나리오 자체 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_scenario_avg, 'blue')}</ul></div>
+                        <div class="pt-4 border-t"><h4 class="font-semibold text-gray-700">편향 유형 문항 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_bias_avg, 'blue')}</ul></div>
+                        <div class="pt-4 border-t"><h4 class="font-semibold text-gray-700">대처법 문항 평가 (평균)</h4><ul class="space-y-2 text-gray-700 mt-2">${generateSummaryList(p1_countermeasure_avg, 'blue')}</ul></div>
                     </div>
                     <div class="bg-purple-50 p-6 rounded-lg border border-purple-200">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">파트 2: 사전/사후 검사 평가 요약</h3>
@@ -588,13 +655,22 @@
                     case 'next-btn': {
                         const unanswered = validateCurrentPage();
                         if (unanswered.length > 0) {
-                            showAlert(`다음 항목의 응답을 완료해주세요:<br><ul class="list-disc list-inside mt-2 text-left">${unanswered.map(u => `<li>${u}</li>`).join('')}</ul>`);
+                            nextAction = () => {
+                                updateSessionData();
+                                if (currentPart === 'part1' && currentPage < surveyData[currentPart].pages.length) {
+                                    currentPage++;
+                                    renderQuestionPage();
+                                    window.scrollTo(0, 0);
+                                }
+                            };
+                            showAlert(`응답이 누락된 항목이 있습니다. 그대로 진행하시겠습니까?<br><ul class="list-disc list-inside mt-2 text-left">${unanswered.map(u => `<li>${u}</li>`).join('')}</ul>`);
                             return;
                         }
                         updateSessionData();
                         if (currentPart === 'part1' && currentPage < surveyData[currentPart].pages.length) {
                             currentPage++;
                             renderQuestionPage();
+                            window.scrollTo(0, 0);
                         }
                         break;
                     }
@@ -603,6 +679,7 @@
                         if (currentPart === 'part1' && currentPage > 1) {
                             currentPage--;
                             renderQuestionPage();
+                            window.scrollTo(0, 0);
                         }
                         break;
                     case 'go-to-summary-btn':
@@ -638,8 +715,16 @@
                         }
                         break;
                     }
-                    case 'close-alert-btn':
+                    case 'alert-close-btn':
                          document.getElementById('alert-modal').style.display = 'none';
+                         nextAction = null;
+                        break;
+                    case 'alert-proceed-btn':
+                        document.getElementById('alert-modal').style.display = 'none';
+                        if(typeof nextAction === 'function') {
+                            nextAction();
+                        }
+                        nextAction = null;
                         break;
                 }
             });
@@ -650,22 +735,27 @@
                      showPage('part-selection-page');
                  } else if (event.target.id === 'evaluationForm') {
                      const unanswered = validateCurrentPage();
+                     const proceed = () => {
+                        updateSessionData();
+                        surveyData[currentPart].completed = true;
+                        const btn = document.getElementById(`start-${currentPart}-btn`);
+                        btn.classList.add('part-btn-completed');
+                        btn.disabled = true;
+                        if (!btn.querySelector('.completion-text')) {
+                            btn.innerHTML += '<span class="completion-text text-sm font-normal mt-1">(완료)</span>';
+                        }
+                        if(surveyData.part1.completed && surveyData.part2.completed) {
+                            document.getElementById('go-to-summary-btn').disabled = false;
+                        }
+                        showPage('part-selection-page');
+                     };
+
                     if (unanswered.length > 0) {
-                        showAlert(`다음 항목의 응답을 완료해주세요:<br><ul class="list-disc list-inside mt-2 text-left">${unanswered.map(u => `<li>${u}</li>`).join('')}</ul>`);
-                        return;
+                        nextAction = proceed;
+                        showAlert(`응답이 누락된 항목이 있습니다. 그대로 파트를 완료하시겠습니까?<br><ul class="list-disc list-inside mt-2 text-left">${unanswered.map(u => `<li>${u}</li>`).join('')}</ul>`);
+                    } else {
+                        proceed();
                     }
-                    updateSessionData();
-                    surveyData[currentPart].completed = true;
-                    const btn = document.getElementById(`start-${currentPart}-btn`);
-                    btn.classList.add('part-btn-completed');
-                    btn.disabled = true;
-                    if (!btn.querySelector('.completion-text')) {
-                        btn.innerHTML += '<span class="completion-text text-sm font-normal mt-1">(완료)</span>';
-                    }
-                    if(surveyData.part1.completed && surveyData.part2.completed) {
-                        document.getElementById('go-to-summary-btn').disabled = false;
-                    }
-                    showPage('part-selection-page');
                  }
             });
         });
